@@ -1,0 +1,213 @@
+swagger: '2.0'
+info:
+  title: CU Then! API
+  description: 'AI Matchmaking application, built during the Cloud and Big Data course at Columbia University.'
+  version: 1.0.0
+schemes:
+  - https
+basePath: /v1
+produces:
+  - application/json
+paths:
+  /listGroups:
+    post:
+      summary: List groups user is currently in
+      tags:
+      - profile
+      operationId: listGroups
+      parameters:
+        - name: currentUser
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: A valid set of groups
+          schema:
+            $ref: '#/definitions/UserGroups'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /modifyProfile:
+    post:
+      summary: Change user information/delete user profile
+      tags:
+      - profile
+      operationId: modifyProfile
+      parameters:
+        - name: currentUserId
+          in: header
+          required: true
+          type: integer
+        - name: new_features
+          in: body
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Feature'
+      responses:
+        '200':
+          description: Validation
+          schema:
+            type: string
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /matchmaker:
+    post:
+      summary: CU Then! matchmaking endpoint.
+      description: |
+        This API takes in user features and passes them on to a matchmaking backend that returns a list of other users sorted by cosine similarity.
+      tags:
+        - Matchmaking
+      operationId: matchUser
+      produces:
+        - application/json
+      parameters:
+        - name: User
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: A valid set of compatible users
+          schema:
+            $ref: '#/definitions/Compats'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /extendInvitation:
+    post:
+      summary: Extend invitation
+      tags:
+      - Invitations
+      operationId: extendInvitation
+      produces:
+        - application/json
+      parameters:
+      - name: currentGroupId
+        in: header
+        required: true
+        type: integer
+      - name: invitee
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: Validation that invitation has been extended
+          schema:
+            type: string
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /respondToInvitation:
+    post:
+      summary: Respond to invitation
+      tags:
+      - Invitations
+      operationId: respondToInvitation
+      produces:
+        - application/json
+      parameters:
+      - name: currentUserId
+        in: header
+        required: true
+        type: integer
+      - name: invitingGroup
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Group'
+      responses:
+        '200':
+          description: Y/N response depending on whether or not invitation was accepted
+          schema:
+            type: string
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+            
+definitions:
+  User:
+    type: object
+    properties:
+      UserId:
+        type: string
+      UserFeatures:
+        type: object
+        items:
+          $ref: '#/definitions/Feature'
+  UserGroups:
+    type: object
+    properties:
+      Groups:
+        type: array
+        items:
+          $ref: '#/definitions/Group'
+  Group:
+    type: object
+    properties:
+      GroupId:
+        type: integer
+      GroupLeader:
+        $ref: '#/definitions/User'
+      GroupMembers:
+        type: array
+        items:
+          $ref: '#/definitions/User'
+  Compats:
+    type: object
+    properties:
+      messages:
+        type: array
+        items:
+          $ref: '#/definitions/User'
+  Feature:
+    type: object
+    properties:
+      feature_name:
+        type: string
+      feature_value:
+        type: string
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
