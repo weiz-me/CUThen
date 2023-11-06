@@ -169,11 +169,15 @@ paths:
       produces:
         - application/json
       parameters:
-      - name: currentUser
+      - name: currentUserId
+        in: header
+        required: true
+        type: integer
+      - name: currentGroup
         in: body
         required: true
         schema:
-          $ref: '#/definitions/User'
+          $ref: '#/definitions/Group'
       responses:
         '200':
           description: Confirmation that chat message was received
