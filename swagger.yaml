@@ -160,6 +160,33 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+  /chat:
+    post:
+      summary: Chat with other users
+      tags:
+      - Chat
+      operationId: chat
+      produces:
+        - application/json
+      parameters:
+      - name: currentUser
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: Confirmation that chat message was received
+          schema:
+            type: string
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
             
 definitions:
   User:
