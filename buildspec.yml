@@ -14,35 +14,44 @@ phases:
       - zip -r ../LFEditProfile_deployment.zip .
       - cd ..
       - rm -r package
+      
       - pip3.9 install --target ./package pip install requests-aws4auth opensearch-py 
       - cd package
       - zip -r ../LFGetGroup_deployment.zip .
       - cd ..
       - rm -r package
+      
       - pip3.9 install --target ./package pip install requests-aws4auth opensearch-py 
       - cd package
       - zip -r ../LFMakeMatch_deployment.zip .
       - cd ..
       - rm -r package
+      
       - pip3.9 install --target ./package pip install requests-aws4auth opensearch-py 
       - cd package
       - zip -r ../LFProcessInvites_deployment.zip .
       - cd ..
       - rm -r package
+      
       - mv LFEditProfile.py lambda_function.py
       - zip LFEditProfile_deployment.zip lambda_function.py
-      - mv lambda_function.py LFEditProfile.py     
+      - mv lambda_function.py LFEditProfile.py  
+      
       - mv LFGetGroup.py lambda_function.py
       - zip LFGetGroup_deployment.zip lambda_function.py
       - mv lambda_function.py LFGetGroup.py
+      
       - mv LFMakeMatch.py lambda_function.py
       - zip LFMakeMatch_deployment.zip lambda_function.py
       - mv lambda_function.py LFMakeMatch.py
+      
       - mv LFProcessInvites.py lambda_function.py
       - zip LFProcessInvites.zip lambda_function.py
-      - mv lambda_function.py LFProcessInvites.py      
+      - mv lambda_function.py LFProcessInvites.py
+      
       - mv buildspec.yml buildspec_orig.yml
       - mv deploy.yml buildspec.yml
+      
 artifacts:
   files:
     - LFEditProfile_deployment.zip
