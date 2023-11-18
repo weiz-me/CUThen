@@ -46,7 +46,7 @@ phases:
       - mv lambda_function.py LFMakeMatch.py
       
       - mv LFProcessInvites.py lambda_function.py
-      - zip LFProcessInvites.zip lambda_function.py
+      - zip LFProcessInvites_deployment.zip lambda_function.py
       - mv lambda_function.py LFProcessInvites.py
       
       - mv buildspec.yml buildspec_orig.yml
@@ -57,6 +57,6 @@ artifacts:
     - LFEditProfile_deployment.zip
     - LFGetGroup_deployment.zip
     - LFMakeMatch_deployment.zip
-    - LFProcessInvites.zip
+    - LFProcessInvites_deployment.zip
     - buildspec.yml
   name: lambdas
