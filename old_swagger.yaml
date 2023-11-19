@@ -42,11 +42,17 @@ paths:
       - profile
       operationId: modifyProfile
       parameters:
+        - name: currentUserId
+          in: header
+          required: true
+          type: integer
         - name: new_features
           in: body
           required: true
           schema:
-            $ref: '#/definitions/ProfileChanges'
+            type: array
+            items:
+              $ref: '#/definitions/Feature'
       responses:
         '200':
           description: Validation
@@ -100,11 +106,15 @@ paths:
       produces:
         - application/json
       parameters:
-      - name: o_inv
+      - name: currentGroupId
+        in: header
+        required: true
+        type: integer
+      - name: invitee
         in: body
         required: true
         schema:
-          $ref: '#/definitions/OutgoingInvitation'
+          $ref: '#/definitions/User'
       responses:
         '200':
           description: Validation that invitation has been extended
@@ -128,11 +138,15 @@ paths:
       produces:
         - application/json
       parameters:
-      - name: i_inv
+      - name: currentUserId
+        in: header
+        required: true
+        type: integer
+      - name: invitingGroup
         in: body
         required: true
         schema:
-          $ref: '#/definitions/IncomingInvitation'
+          $ref: '#/definitions/Group'
       responses:
         '200':
           description: Y/N response depending on whether or not invitation was accepted
@@ -155,11 +169,15 @@ paths:
       produces:
         - application/json
       parameters:
-      - name: chat
+      - name: currentUserId
+        in: header
+        required: true
+        type: integer
+      - name: currentGroup
         in: body
         required: true
         schema:
-          $ref: '#/definitions/ChatDiscussion'
+          $ref: '#/definitions/Group'
       responses:
         '200':
           description: Confirmation that chat message was received
@@ -224,34 +242,3 @@ definitions:
         format: int32
       message:
         type: string
-  OutgoingInvitation:
-    type: object
-    properties:
-      Invitee:
-        $ref: '#/definitions/User'
-      CurrentGroup:
-        $ref: '#/definitions/Group'
-  IncomingInvitation:
-    type: object
-    properties:
-      InvitingGroup:
-        $ref: '#/definitions/Group'
-      Invitee:
-        $ref: '#/definitions/User'
-  ChatDiscussion:
-    type: object
-    properties:
-      CurrentGroup:
-        $ref: '#/definitions/Group'
-      CurrentUser:
-        $ref: '#/definitions/User'
-  ProfileChanges:
-    type: object
-    properties:
-      CurrentUser:
-        $ref: "#/definitions/User"
-      NewFeatures:
-        type: array
-        items:
-          $ref: '#/definitions/Feature'
-    
