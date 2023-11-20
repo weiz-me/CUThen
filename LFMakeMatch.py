@@ -17,6 +17,22 @@ HOST_GROUP_USER = '' # TODO: fill in host
 INDEX_GROUP_USER = '' # TODO: fill in index
 HOST_GROUP_LEADER = '' # TODO: fill in host
 INDEX_GROUP_LEADER = '' # TODO: fill in index
+HOST_USER_INVITATION = '' # TODO: fill in host
+INDEX_USER_INVITATION = '' # TODO: fill in index
+
+# get data from dynamodb
+def lookup_data(key, db=None, table=''):
+    if not db:
+        db = boto3.resource('dynamodb')
+    table = db.Table(table)
+    try:
+        response = table.get_item(Key=key)
+    except ClientError as e:
+        print('Error', e.response['Error']['Message'])
+        return False
+    else:
+        #print(response['Item'])
+        return response['Item']
 
 def lambda_handler(event, context):
     print(event)
