@@ -11,6 +11,7 @@ def lambda_handler(event, context):
     # uni is the primary/paritition key
     # note they all have unique attributes
 
+    print(event)
     # body json format
     update_data = {
             'user_id': 1,
