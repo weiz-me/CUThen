@@ -20,6 +20,33 @@ INDEX_GROUP_LEADER = '' # TODO: fill in index
 HOST_USER_INVITATION = '' # TODO: fill in host
 INDEX_USER_INVITATION = '' # TODO: fill in index
 
+def get_awsauth(region, service):
+    cred = boto3.Session().get_credentials()
+    return AWS4Auth(cred.access_key,
+                    cred.secret_key,
+                    region,
+                    service,
+                    session_token=cred.token)
+
+# query from opensearch instance
+def query(term, host, index):
+    q = {'query': {'multi_match': {'query': term}}}
+
+    client = OpenSearch(hosts=[{
+        'host': host,
+        'port': 443
+        }],
+        http_auth=get_awsauth(REGION, 'es'),
+        use_ssl=True,
+        verify_certs=True,
+        connection_class=RequestsHttpConnection)
+
+    res = client.search(index=index, body=q)
+
+    hits = res['hits']['hits']
+
+    return hits
+
 # get data from dynamodb
 def lookup_data(key, db=None, table=''):
     if not db:
