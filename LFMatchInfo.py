@@ -1,4 +1,4 @@
-# This file is designed for the lambda function to get group information
+# This file is designed for the lambda function to get match information
 # in the project CUThen, the final project for COMSE6998_010_2023_3,
 # Topics in Computer Science: Cloud Computing and Big Data.
 
@@ -47,21 +47,29 @@ def query(term, host, index):
 
 def lambda_handler(event, context):
     print(event)
-    userID = event['UserId']
-    userFeatures = event['UserFeatures']
+    # userID = event['UserId']
+    # userFeatures = event['UserFeatures']
 
-    groupIDs = query(userID, HOST_USER_GROUP, INDEX_USER_GROUP)
-    groups = []
-    for gid in groupIDs:
-        group = {}
-        group['GroupId'] = gid # TODO: confirm opensearch entry format and modify
-        gleader = query(gid, HOST_GROUP_LEADER, INDEX_GROUP_LEADER)
-        group['GroupLeader'] = gleader # TODO: confirm opensearch entry format and modify
-        gmember = query(gid, HOST_GROUP_USER, HOST_GROUP_USER)
-        group['GroupMembers'] = gmember # TODO: confirm opensearch entry format and modify
+    # groupIDs = query(userID, HOST_USER_GROUP, INDEX_USER_GROUP)
+    # groups = []
+    # for gid in groupIDs:
+    #     group = {}
+    #     group['GroupId'] = gid # TODO: confirm opensearch entry format and modify
+    #     gleader = query(gid, HOST_GROUP_LEADER, INDEX_GROUP_LEADER)
+    #     group['GroupLeader'] = gleader # TODO: confirm opensearch entry format and modify
+    #     gmember = query(gid, HOST_GROUP_USER, HOST_GROUP_USER)
+    #     group['GroupMembers'] = gmember # TODO: confirm opensearch entry format and modify
 
-    resp = {
-            'statusCode': 200,
-            'body': "Get group call success!",
-            'Groups': groups
+    # FOR TESTING ONLY
+    dummy_response = {
+        "matchUserProfile": {
+            "userId": "3",
+            "userName": "test name",
+            "userFeatures": []
+        },
+        "currentUserGroup": []
+    }
+    return {
+        'statusCode': 200,
+        'body': json.dumps(dummy_response)
     }
