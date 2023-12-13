@@ -13,11 +13,9 @@ from botocore.exceptions import ClientError
 # question: what is userfeatures returned with userid? Should dynamodb store it?
 
 REGION = 'us-east-1'
-HOST_USER_GROUP = '' # TODO: fill in host
+HOST = 'search-cuthen-temp-5fyo5fvs7x7t2myle4ztwa7swa.us-east-1.es.amazonaws.com'
 INDEX_USER_GROUP = '' # TODO: fill in index
-HOST_GROUP_USER = '' # TODO: fill in host
 INDEX_GROUP_USER = '' # TODO: fill in index
-HOST_GROUP_LEADER = '' # TODO: fill in host
 INDEX_GROUP_LEADER = '' # TODO: fill in index
 
 def get_awsauth(region, service):

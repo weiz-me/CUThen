@@ -9,23 +9,23 @@ basePath: /v1
 produces:
   - application/json
 paths:
-  /listGroups:
-    post:
-      summary: List groups user is currently in
+  /profile:
+    get:
+      summary: Get information of user given user id - Groups they are in, profile info, pending invites
       tags:
-      - profile
-      operationId: listGroups
+      - GetProfile
+      operationId: getProfile
       parameters:
-        - name: currentUser
+        - name: currentUserID
           in: body
           required: true
           schema:
-            $ref: '#/definitions/User'
+            type: string
       responses:
         '200':
-          description: A valid set of groups
+          description: A valid set of user info
           schema:
-            $ref: '#/definitions/UserGroups'
+            $ref: '#/definitions/UserInfo'
         '403':
           description: Unauthorized
           schema:
@@ -34,15 +34,13 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
-            
-  /modifyProfile:
     post:
-      summary: Change user information/delete user profile
+      summary: Change user information
       tags:
-      - profile
+      - ModifyProfile
       operationId: modifyProfile
       parameters:
-        - name: new_features
+        - name: newFeatures
           in: body
           required: true
           schema:
@@ -60,7 +58,104 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
-            
+  
+  /getMatchInfo:
+    post:
+      summary: Get information of a matched user and the current groups the master user is in
+      tags:
+        - GetMatchInfo
+      operationId: getMatchInfo
+      produces:
+        - application/json
+      parameters:
+        - name: userMix
+          in: body
+          required: true
+          schema:
+            type: object
+            properties: 
+              masterUserId:
+                type: string
+              matchUserId:
+                type: string
+      responses:
+        '200':
+          description: A valid set of combined info
+          schema:
+            type: object
+            properties: 
+              matchUserProfile:
+                $ref: "#/definitions/User"
+              currentUserGroup:
+                type: array
+                items:
+                  $ref: '#/definitions/Group'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  /group:
+    delete:
+      summary: Delete group the user is in
+      tags:
+      - DeleteGroup
+      operationId: deleteGroup
+      parameters:
+        - name: groupId
+          in: body
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Validation
+          schema:
+            type: string
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      summary: Make new group
+      tags:
+      - MakeGroup
+      operationId: makeGroup
+      parameters:
+        - name: userIds
+          in: body
+          required: true
+          schema:
+            type: object
+            properties: 
+              groupLeader:
+                type: string
+              groupMemeber:
+                type: array
+                items: 
+                  type: string
+      responses:
+        '200':
+          description: Group that is made
+          schema:
+            $ref: '#/definitions/Group'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
   /matchmaker:
     post:
       summary: CU Then! matchmaking endpoint.
@@ -72,7 +167,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: User
+        - name: user
           in: body
           required: true
           schema:
@@ -162,9 +257,11 @@ paths:
           $ref: '#/definitions/ChatDiscussion'
       responses:
         '200':
-          description: Confirmation that chat message was received
+          description: Gets the list of messages of the group chat, and append the user's own message if UserChatMessage in body is not None
           schema:
-            type: string
+            type: array
+            items: 
+              $ref: "#/definitions/UserChatMessage"
         '403':
           description: Unauthorized
           schema:
@@ -178,27 +275,39 @@ definitions:
   User:
     type: object
     properties:
-      UserId:
+      userId:
         type: string
-      UserFeatures:
-        type: object
+      userName:
+        type: string
+      userFeatures:
+        type: array
         items:
           $ref: '#/definitions/Feature'
-  UserGroups:
+  UserInfo:
     type: object
     properties:
-      Groups:
+      groups:
         type: array
         items:
           $ref: '#/definitions/Group'
+      userName:
+        type: string
+      userFeatures:
+        type: array
+        items:
+          $ref: '#/definitions/Feature'
+      pendingInvites:
+        type: array
+        items:
+          $ref: '#/definitions/IncomingInvitation'
   Group:
     type: object
     properties:
-      GroupId:
+      groupId:
         type: integer
-      GroupLeader:
+      groupLeader:
         $ref: '#/definitions/User'
-      GroupMembers:
+      groupMembers:
         type: array
         items:
           $ref: '#/definitions/User'
@@ -212,9 +321,9 @@ definitions:
   Feature:
     type: object
     properties:
-      feature_name:
+      featureName:
         type: string
-      feature_value:
+      featureValue:
         type: string
   Error:
     type: object
@@ -227,31 +336,43 @@ definitions:
   OutgoingInvitation:
     type: object
     properties:
-      Invitee:
+      invitee:
         $ref: '#/definitions/User'
-      CurrentGroup:
+      currentGroup:
         $ref: '#/definitions/Group'
   IncomingInvitation:
     type: object
     properties:
-      InvitingGroup:
+      invitingGroup:
         $ref: '#/definitions/Group'
-      Invitee:
+      invitee:
         $ref: '#/definitions/User'
   ChatDiscussion:
     type: object
     properties:
-      CurrentGroup:
-        $ref: '#/definitions/Group'
-      CurrentUser:
-        $ref: '#/definitions/User'
+      currentGroup:
+        type: integer
+      currentUser:
+        type: integer
+      message:
+        $ref: "#/definitions/UserChatMessage"
   ProfileChanges:
     type: object
     properties:
-      CurrentUser:
+      currentUser:
         $ref: "#/definitions/User"
-      NewFeatures:
+      newFeatures:
         type: array
         items:
           $ref: '#/definitions/Feature'
+  UserChatMessage:
+    type: object
+    properties:
+      userName:
+        type: string
+      text:
+        type: string
+      timestamp:
+        type: string
+        format: datetime
     
