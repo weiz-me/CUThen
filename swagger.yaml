@@ -16,11 +16,11 @@ paths:
       - profile
       operationId: listGroups
       parameters:
-        - name: currentUser
+        - name: currentUserId
           in: body
           required: true
           schema:
-            $ref: '#/definitions/User'
+            type: integer
       responses:
         '200':
           description: A valid set of groups
