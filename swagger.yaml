@@ -72,11 +72,11 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: User
+        - name: UserId
           in: body
           required: true
           schema:
-            $ref: '#/definitions/User'
+            type: integer
       responses:
         '200':
           description: A valid set of compatible users
