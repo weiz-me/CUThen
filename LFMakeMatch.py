@@ -63,7 +63,11 @@ def lookup_data(key, db=None, table=''):
 
 def lambda_handler(event, context):
     print(event)
+    # FOR TESTING ONLY
+    dummy_response = {
+        "compatibleUsers": []
+    }
     return {
         'statusCode': 200,
-        'body': json.dumps('Hello from Lambda!')
+        'body': json.dumps(dummy_response)
     }
