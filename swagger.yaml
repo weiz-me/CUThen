@@ -65,7 +65,7 @@ paths:
     post:
       summary: CU Then! matchmaking endpoint.
       description: |
-        This API takes in user features and passes them on to a matchmaking backend that returns a list of other users sorted by cosine similarity.
+        This API takes in a user ID, fetches the user features, and passes them on to a matchmaking backend that returns a list of other users sorted by cosine similarity.
       tags:
         - Matchmaking
       operationId: matchUser
