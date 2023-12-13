@@ -205,7 +205,7 @@ definitions:
   Compats:
     type: object
     properties:
-      messages:
+      compatibleUsers:
         type: array
         items:
           $ref: '#/definitions/User'
