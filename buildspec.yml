@@ -17,7 +17,7 @@ phases:
       
       - pip3.9 install --target ./package pip install requests-aws4auth opensearch-py 
       - cd package
-      - zip -r ../LFGetGroup_deployment.zip .
+      - zip -r ../LFMatchInfo_deployment.zip .
       - cd ..
       - rm -r package
       
@@ -32,18 +32,68 @@ phases:
       - zip -r ../LFProcessInvites_deployment.zip .
       - cd ..
       - rm -r package
+
+      - pip3.9 install --target ./package pip install requests-aws4auth opensearch-py 
+      - cd package
+      - zip -r ../LFChat_deployment.zip .
+      - cd ..
+      - rm -r package
+      
+      - pip3.9 install --target ./package pip install requests-aws4auth opensearch-py 
+      - cd package
+      - zip -r ../LFDeleteGroup_deployment.zip .
+      - cd ..
+      - rm -r package
+      
+      - pip3.9 install --target ./package pip install requests-aws4auth opensearch-py 
+      - cd package
+      - zip -r ../LFGetProfile_deployment.zip .
+      - cd ..
+      - rm -r package
+      
+      - pip3.9 install --target ./package pip install requests-aws4auth opensearch-py 
+      - cd package
+      - zip -r ../LFMakeGroup_deployment.zip .
+      - cd ..
+      - rm -r package
+
+      - pip3.9 install --target ./package pip install requests-aws4auth opensearch-py 
+      - cd package
+      - zip -r ../LFMakeInvites_deployment.zip .
+      - cd ..
+      - rm -r package
+
+      - mv LFChat.py lambda_function.py
+      - zip LFChat_deployment.zip lambda_function.py
+      - mv lambda_function.py LFChat.py  
+
+      - mv LFDeleteGroup.py lambda_function.py
+      - zip LFDeleteGroup_deployment.zip lambda_function.py
+      - mv lambda_function.py LFDeleteGroup.py  
       
       - mv LFEditProfile.py lambda_function.py
       - zip LFEditProfile_deployment.zip lambda_function.py
       - mv lambda_function.py LFEditProfile.py  
-      
-      - mv LFGetGroup.py lambda_function.py
-      - zip LFGetGroup_deployment.zip lambda_function.py
-      - mv lambda_function.py LFGetGroup.py
-      
+
+      - mv LFGetProfile.py lambda_function.py
+      - zip LFGetProfile_deployment.zip lambda_function.py
+      - mv lambda_function.py LFGetProfile.py  
+
+      - mv LFMakeGroup.py lambda_function.py
+      - zip LFMakeGroup_deployment.zip lambda_function.py
+      - mv lambda_function.py LFMakeGroup.py  
+
+      - mv LFMakeInvites.py lambda_function.py
+      - zip LFMakeInvites_deployment.zip lambda_function.py
+      - mv lambda_function.py LFMakeInvites.py  
+
       - mv LFMakeMatch.py lambda_function.py
       - zip LFMakeMatch_deployment.zip lambda_function.py
       - mv lambda_function.py LFMakeMatch.py
+      
+      - mv LFMatchInfo.py lambda_function.py
+      - zip LFMatchInfo_deployment.zip lambda_function.py
+      - mv lambda_function.py LFMatchInfo.py
       
       - mv LFProcessInvites.py lambda_function.py
       - zip LFProcessInvites_deployment.zip lambda_function.py
@@ -54,9 +104,14 @@ phases:
       
 artifacts:
   files:
+    - LFChat_deployment.zip
+    - LFDeleteGroup_deployment.zip
     - LFEditProfile_deployment.zip
-    - LFGetGroup_deployment.zip
+    - LFGetProfile_deployment.zip
+    - LFMakeGroup_deployment.zip
+    - LFMakeInvites_deployment.zip
     - LFMakeMatch_deployment.zip
+    - LFMatchInfo_deployment.zip
     - LFProcessInvites_deployment.zip
     - buildspec.yml
   name: lambdas
