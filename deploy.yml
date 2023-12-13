@@ -12,7 +12,12 @@ phases:
       - ls
   post_build:
     commands:
+      - aws lambda update-function-code --function-name LFChat --zip-file fileb://LFChat_deployment.zip
+      - aws lambda update-function-code --function-name LFDeleteGroup --zip-file fileb://LFDeleteGroup_deployment.zip
       - aws lambda update-function-code --function-name LFEditProfile --zip-file fileb://LFEditProfile_deployment.zip
-      - aws lambda update-function-code --function-name LFGetGroup --zip-file fileb://LFGetGroup_deployment.zip
+      - aws lambda update-function-code --function-name LFGetProfile --zip-file fileb://LFGetProfile_deployment.zip
+      - aws lambda update-function-code --function-name LFMakeGroup --zip-file fileb://LFMakeGroup_deployment.zip
+      - aws lambda update-function-code --function-name LFMakeInvites --zip-file fileb://LFMakeInvites_deployment.zip
       - aws lambda update-function-code --function-name LFMakeMatch --zip-file fileb://LFMakeMatch_deployment.zip
+      - aws lambda update-function-code --function-name LFMatchInfo --zip-file fileb://LFMatchInfo_deployment.zip
       - aws lambda update-function-code --function-name LFProcessInvites --zip-file fileb://LFProcessInvites_deployment.zip
