@@ -13,32 +13,31 @@ def lambda_handler(event, context):
 
     print(f"{user_data}")
 
-    # user_data = {
-    #         'user_id': 1,
-    #         'first_name': 'Timothy',
-    #         'last_name': 'Wang',
-    #         'uni': 'tjw2145',
-    #         'email': 'tjw2145@columbia.edu',
-    #         'hobbies': 'none',
-    #         'major': 'none',
-    #         'school': 'none',
-    #         'academic_interests': 'none',
-    #         'class_schedule': 'none',
-    #         'exam_schedule': 'none',
-    #         'phone_number': 'none',
-    #         'zipcode': 'none'
-    #     }
+    # mock
+    # user_data = {   
+    #     "user_id": 1,
+    #     "first_name": "Timothy",
+    #     "last_name": "Wang",
+    #     "uni": "tjw2145",
+    #     "email": "tjw2145@columbia.edu",
+    #     "hobbies": "none",
+    #     "major": "none",
+    #     "school": "none",
+    #     "academic_interests": "none",
+    #     "class_schedule": "none",
+    #     "exam_schedule": "none",
+    #     "phone_number": "none",
+    #     "zipcode": "12345"
+    # }
 
+    orginal = lookup_data({'user_id': user_data["user_id"]}, table="user_table")
     update_item_list({'user_id':user_data['user_id']},user_data,table="user_table")
-    lookup_data({'user_id': 1}, table="user_table")
+    updated_Data = lookup_data({'user_id': user_data["user_id"]}, table="user_table")
 
-    # 4
-    # delete_item({'uni': 'xx777'})
-
-
+    response = {"input": user_data , "orginal_data": orginal, "updated_Data":updated_Data}
     resp = {
             'statusCode': 200,
-            'body': "profile updated"
+            'body': json.dumps(response)
     }
     
     return resp
@@ -52,16 +51,16 @@ def lookup_data(key, db=None, table='6998Demo'):
     except ClientError as e:
         print('Error', e.response['Error']['Message'])
     else:
-        print(response['Item'])
+        res = response['Item']
+        res['user_id'] = int(res['user_id']) 
+        print(f"{res =}")
         return response['Item']
         
 def update_item_list(key, feature_dict, db=None, table='6998Demo'):
     if not db:
         db = boto3.resource('dynamodb')
     table = db.Table(table)
-    
-    responses = "Update feature :"
-    # change student location
+
     for feature_name, feature in feature_dict.items():
         if feature_name == "user_id":
             continue
@@ -77,7 +76,6 @@ def update_item_list(key, feature_dict, db=None, table='6998Demo'):
             },
             ReturnValues="UPDATED_NEW"
         )
-        print(response)
-        responses += (" " +feature_name)
-    print(f"{responses =}")
-    return responses
+
+    return
+
