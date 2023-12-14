@@ -1,71 +1,65 @@
-$(document).ready(function() {
-    var sdk = apigClientFactory.newClient({});
-    const userInputField = $('#userInput');
-    const submitButton = $('#submitButton');
-    const userMessageDiv = $('#userMessage');
-    const displayCanvas = $('.canvas');
-    const maxWidth = 50;
-    const maxHeight = 50;
+//UNCOMMENT RELEVANT LINES WHEN API IS READY
 
-    window.addEventListener("load", )
+//var sdk = apigClientFactory.newClient({});
 
-    // Get user data from S3 bucket
-    var user_vector = [];
-    var user_data = {};
-    
+function callProfileGetApi(user_id) {
+  // Should return an object containing user groups, name, features, and pending invites
+  // const userInfo = sdk.profileGet({ UserId: user_id });
+  // return userInfo.data.userFeatures; // Should be an array of features (each one is an object containing a name and a value)
+  return [
+    { featureName: "Feature 1", featureValue: "Value 1" },
+    { featureName: "Feature 2", featureValue: "Value 2" },
+  ];
+}
 
+function callProfilePostApi(user_id, user_vector) {
+  // return sdk.profilePost({ currentUser: user_id, newFeatures: user_vector });
+  for (let i = 0; i < user_vector.length; i++) {
+    console.log(user_vector[i].featureName + ": " + user_vector[i].featureValue);
+  }
+  return "Success";
+}
 
-    window.submitUserInput = function() {
-        //EDIT THIS TO GET THE USER'S ID
-        const userInput = userInputField.val();
-        
-        //userInputField.val('');
-        if ($.trim(userInput) !== '') {
-        // send the message to API
-        displayProfile.empty();
-        getMatches(user_vector)
-            .then((response) => {
-                console.log(response);
-                var data = response.data.results;
-                if (data && data.length > 1) {
-                    console.log('received ' + (data.length - 1) + ' matches');
-                    var displaySet = new Set();
-                    labels = data[0].labels;
-                    var label_text = 'Image with label "';
-                    if (labels.length == 1) {
-                        label_text += labels[0] + '"';
-                    } else {
-                        label_text += labels[0] + '" and "' + labels[1] + '"';
-                    }
-                    displayProfile.append($('<h2>').text(label_text));
-                    for (let i = 1; i < data.length; i++) {
-                        if (displaySet.has(data[i].url)) {
-                            continue;
-                        } else {
-                            displaySet.add(data[i].url);
-                            var profileInfo = $('<h2>')
-                            var editButton = $('<button>')
+window.addEventListener("load", function () {
+  const editButton = $("#editButton");
+  const maxWidth = 50;
+  const maxHeight = 50;
 
-                            //EDIT TO SHOW PROFILE INFO PROPERLY
+  user_id = "1";
+  user_vector = callProfileGetApi(user_id);
+  var features = callProfileGetApi(user_vector);
+  features.forEach((feature) => {
+    var featureName = feature.featureName;
+    var featureValue = feature.featureValue;
+    console.log(featureName + ": " + featureValue);
+    var featureDiv = document.createElement("div");
 
-                            // img.load(function(){
-                            //     var ratio = Math.min(maxWidth / $(this).width(), maxHeight / $(this).height());
-                            //     console.log(ratio);
-                            //     console.log($(this).height());
-                            //     $(this).attr('width', $(this).width() * ratio);
-                            //     $(this).attr('height', $(this).height() * ratio);
-                            // });
-                            img.appendTo(displayProfile);
-                        }
-                    }
-                } else {
-                    var label_text = 'No image found.';
-                    displayProfile.append($('<h2>').text(label_text));
-                }
-            })
-            .catch((error) => {
-                console.log('an error occurred', error);
-            });
+    var editField = document.createElement("input");
+    editField.setAttribute("type", "text");
+    editField.setAttribute("id", featureName);
+    editField.style.display = "block";
+
+    featureDiv.setAttribute("class", "feature");
+    featureDiv.innerHTML = featureName + ": " + featureValue;
+    // find the div with class "profile" and append the featureDiv to it as a child
+    var profileDiv = document.getElementsByClassName("profile")[0];
+    profileDiv.appendChild(featureDiv);
+    profileDiv.appendChild(editField);
+
+    editField.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        featureDiv.innerHTML = featureName + ": " + editField.value;
+        for (let i = 0; i < features.length; i++) {
+          if (features[i].featureName === featureName) {
+            features[i].featureValue = editField.value;
+            console.log("Feature Updated: " + features[i].featureName + ": " + features[i].featureValue);
+          }
         }
-    };
+        editField.value = "";
+      }
+    });
+  });
+  editButton.click(function () {
+    console.log(callProfilePostApi(user_id, features));
+  });
 });
