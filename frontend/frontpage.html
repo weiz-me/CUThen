@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="This is the frontend for CUThen, a Columbia University Friend-Making Site.">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="This is the frontend for CUThen, a Columbia University Friend-Making Site." />
     <title>CUThen</title>
     <!-- api gateway generated sdk -->
     <script src="./assets/js/sdk/lib/axios/dist/axios.standalone.js"></script>
@@ -22,18 +22,26 @@
 
     <script src="./assets/js/aws-sdk.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="css/profile.css">
-</head>
+    <link rel="stylesheet" href="css/frontpage.css" />
+  </head>
 
-
-<body>
-  <div class="container">
-    <h1>Your Profile</h1>
-  </div>
-  <div class="profile">
-  </div>
-  <div class="return">
-    <a href="frontpage.html">Return to Home</a>
-  </div>
-</body>
+  <body>
+    <div class="container">
+      <h1>CU Then, Your Gateway to Making Your Next Columbia Friend Group</h1>
+      <input type="text" id="userInput" placeholder="Enter your message" style="width: 300px" />
+      <button id="submitButton">Submit</button>
+      <div id="userMessage"></div>
+    </div>
+    <div class="dropdown">
+      <button class="dropbtn">Options</button>
+      <div class="dropdown-content">
+        <a href="profile.html">Your Profile</a>
+        <a href="current_groups.html">Your Groups</a>
+        <a href="logged_out.html">Logout</a>
+      </div>
+    </div>
+    <div class="grid-container" id="grid"></div>
+    <script src="js/frontpage.js"></script>
+    <div class="canvas"></div>
+  </body>
 </html>

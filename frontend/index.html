@@ -1,47 +1,26 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="This is the frontend for CUThen, a Columbia University Friend-Making Site.">
-    <title>CUThen</title>
-    <!-- api gateway generated sdk -->
-    <script src="./assets/js/sdk/lib/axios/dist/axios.standalone.js"></script>
-    <script src="./assets/js/sdk/lib/CryptoJS/rollups/hmac-sha256.js"></script>
-    <script src="./assets/js/sdk/lib/CryptoJS/rollups/sha256.js"></script>
-    <script src="./assets/js/sdk/lib/CryptoJS/components/hmac.js"></script>
-    <script src="./assets/js/sdk/lib/CryptoJS/components/enc-base64.js"></script>
-    <script src="./assets/js/sdk/lib/url-template/url-template.js"></script>
-    <script src="./assets/js/sdk/lib/apiGatewayCore/sigV4Client.js"></script>
-    <script src="./assets/js/sdk/lib/apiGatewayCore/apiGatewayClient.js"></script>
-    <script src="./assets/js/sdk/lib/apiGatewayCore/simpleHttpClient.js"></script>
-    <script src="./assets/js/sdk/lib/apiGatewayCore/utils.js"></script>
+  <head>
+    <meta charset="utf-8" />
+    <title>Google Sign In</title>
+    <meta name="google-signin-scope" content="profile email" />
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
 
-    <script src="./assets/js/sdk/apigClient.js"></script>
-
-    <script src="./assets/js/aws-sdk.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="css/index.css">
-</head>
-
-
-<body>
-  <div class="container">
-    <h1>CU Then, Your Gateway to Making Your Next Columbia Friend Group</h1>
-    <input type="text" id="userInput" placeholder="Enter your message" style="width: 300px;">
-    <button id="submitButton">Submit</button>
-    <div id="userMessage"></div>
-  </div>
-  <div class="dropdown">
-    <button class="dropbtn">Options</button>
-    <div class="dropdown-content">
-      <a href="profile.html">Your Profile</a>
-      <a href="current_groups.html">Your Groups</a>
-      <a href="logged_out.html">Logout</a>
-    </div>
-  </div>
-  <div class="canvas">
-  </div>
-</body>
+    <meta
+      name="google-signin-client_id"
+      content="579017199170-p4pglbcjkicp69hpmfo97hj170ovbbui.apps.googleusercontent.com"
+    />
+  </head>
+  <body>
+    
+    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    <script>
+      function onSignIn(googleUser) {
+        var profile = googleUser.getBasicProfile();
+        console.log("ID: " + profile.getId()); // Do not send to your backend! Use an ID token instead.
+        console.log("Name: " + profile.getName());
+        console.log("Image URL: " + profile.getImageUrl());
+        console.log("Email: " + profile.getEmail()); // This is null if the 'email' scope is not present.
+      }
+    </script>
+  </body>
 </html>
