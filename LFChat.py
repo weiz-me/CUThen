@@ -18,6 +18,8 @@ def lambda_handler(event, context):
     input_data = json.loads(input_data)
     
     send = input_data['send']
+    group_id = input_data['group_id']
+
     # mock database
     # messages_data = [
     #     {'chat_id': 1, 'group_id': 1, 'user_id': 1, 'message': "Hello, it's Tim.", 'time': datetime.now().isoformat()},
@@ -27,7 +29,6 @@ def lambda_handler(event, context):
     # insert_data(messages_data, table="chat_table")
 
     if send:
-        group_id = input_data['group_id']
         user_id = input_data['user_id']
         message = input_data['message']
 
