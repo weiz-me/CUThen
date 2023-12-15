@@ -49,7 +49,7 @@ paths:
         '200':
           description: Validation
           schema:
-            type: application/json
+            type: string
         '403':
           description: Unauthorized
           schema:
@@ -115,7 +115,7 @@ paths:
         '200':
           description: Validation
           schema:
-            type: application/json
+            type: string
         '403':
           description: Unauthorized
           schema:
@@ -147,7 +147,6 @@ paths:
           description: Group that is made
           schema:
             $ref: '#/definitions/Group'
-            type: application/json
         '403':
           description: Unauthorized
           schema:
@@ -224,16 +223,16 @@ paths:
       produces:
         - application/json
       parameters:
-      - name: i_inv
+      - name: response
         in: body
         required: true
         schema:
-          $ref: '#/definitions/IncomingInvitation'
+          $ref: '#/definitions/InvitationResponse'
       responses:
         '200':
           description: Y/N response depending on whether or not invitation was accepted
           schema:
-            type: application/json
+            type: string
         '403':
           description: Unauthorized
           schema:
@@ -307,11 +306,11 @@ definitions:
       groupId:
         type: integer
       groupLeader:
-        type: "#/definitions/User"
+        $ref: "#/definitions/User"
       groupMembers:
         type: array
         items:
-          type: "#/definitions/User"
+          $ref: "#/definitions/User"
   Compats:
     type: object
     properties:
@@ -338,23 +337,23 @@ definitions:
     type: object
     properties:
       invitee:
-        type: "#/definitions/User"
+        $ref: "#/definitions/User"
       currentGroup:
-        type: "#/definitions/Group"
+        $ref: "#/definitions/Group"
   IncomingInvitation:
     type: object
     properties:
       invitingGroup:
-        type: "#/definitions/Group"
+        $ref: "#/definitions/Group"
       invitee:
-        type: "#/definitions/User"
+        $ref: "#/definitions/User"
   ChatDiscussion:
     type: object
     properties:
       currentGroup:
-        type: "#/definitions/Group"
+        $ref: "#/definitions/Group"
       currentUser:
-        type: "#/definitions/User"
+        $ref: "#/definitions/User"
       message:
         $ref: "#/definitions/UserChatMessage"
   ProfileChanges:
@@ -376,4 +375,13 @@ definitions:
       timestamp:
         type: string
         format: datetime
+  InvitationResponse:
+    type: object
+    properties:
+      response:
+        type: string
+      inviteeID:
+        type: integer
+      groupID:
+        type: integer
     
