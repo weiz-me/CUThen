@@ -137,11 +137,11 @@ paths:
             type: object
             properties: 
               groupLeader:
-                type: string
-              groupMemeber:
+                type: integer
+              groupMembers:
                 type: array
                 items: 
-                  type: string
+                  type: integer
       responses:
         '200':
           description: Group that is made
