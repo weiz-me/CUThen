@@ -306,11 +306,11 @@ definitions:
       groupId:
         type: integer
       groupLeader:
-        $ref: '#/definitions/User'
+        type: integer
       groupMembers:
         type: array
         items:
-          $ref: '#/definitions/User'
+          type: integer
   Compats:
     type: object
     properties:
