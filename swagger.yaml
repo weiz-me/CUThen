@@ -306,11 +306,11 @@ definitions:
       groupId:
         type: integer
       groupLeader:
-        type: integer
+        type: "#/definitions/User"
       groupMembers:
         type: array
         items:
-          type: integer
+          type: "#/definitions/User"
   Compats:
     type: object
     properties:
@@ -337,23 +337,23 @@ definitions:
     type: object
     properties:
       invitee:
-        type: integer
+        type: "#/definitions/User"
       currentGroup:
-        type: integer
+        type: "#/definitions/Group"
   IncomingInvitation:
     type: object
     properties:
       invitingGroup:
-        type: integer
+        type: "#/definitions/Group"
       invitee:
-        type: integer
+        type: "#/definitions/User"
   ChatDiscussion:
     type: object
     properties:
       currentGroup:
-        type: integer
+        type: "#/definitions/Group"
       currentUser:
-        type: integer
+        type: "#/definitions/User"
       message:
         $ref: "#/definitions/UserChatMessage"
   ProfileChanges:
