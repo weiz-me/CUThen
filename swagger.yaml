@@ -49,7 +49,7 @@ paths:
         '200':
           description: Validation
           schema:
-            type: string
+            type: application/json
         '403':
           description: Unauthorized
           schema:
@@ -115,7 +115,7 @@ paths:
         '200':
           description: Validation
           schema:
-            type: string
+            type: application/json
         '403':
           description: Unauthorized
           schema:
@@ -147,6 +147,7 @@ paths:
           description: Group that is made
           schema:
             $ref: '#/definitions/Group'
+            type: application/json
         '403':
           description: Unauthorized
           schema:
@@ -232,7 +233,7 @@ paths:
         '200':
           description: Y/N response depending on whether or not invitation was accepted
           schema:
-            type: string
+            type: application/json
         '403':
           description: Unauthorized
           schema:
