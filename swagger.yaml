@@ -337,16 +337,16 @@ definitions:
     type: object
     properties:
       invitee:
-        $ref: '#/definitions/User'
+        type: integer
       currentGroup:
-        $ref: '#/definitions/Group'
+        type: integer
   IncomingInvitation:
     type: object
     properties:
       invitingGroup:
-        $ref: '#/definitions/Group'
+        type: integer
       invitee:
-        $ref: '#/definitions/User'
+        type: integer
   ChatDiscussion:
     type: object
     properties:
