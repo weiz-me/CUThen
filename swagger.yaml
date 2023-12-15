@@ -75,9 +75,9 @@ paths:
             type: object
             properties: 
               masterUserId:
-                type: string
+                type: integer
               matchUserId:
-                type: string
+                type: integer
       responses:
         '200':
           description: A valid set of combined info
@@ -110,7 +110,7 @@ paths:
           in: body
           required: true
           schema:
-            type: string
+            type: integer
       responses:
         '200':
           description: Validation
@@ -276,7 +276,7 @@ definitions:
     type: object
     properties:
       userId:
-        type: string
+        type: integer
       userName:
         type: string
       userFeatures:
