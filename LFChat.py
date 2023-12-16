@@ -68,15 +68,15 @@ def search_by_index(INDEX,field,user_id):
 def lambda_handler(event, context):
     print(event)
 
-    input_data = {
-        "send": 1,
-        "group_id": 1,
-        "user_id": 3,
-        "message":"hello, wei testing"
-    }
+    # input_data = {
+    #     "send": 1,
+    #     "group_id": 1,
+    #     "user_id": 3,
+    #     "message":"hello, wei testing"
+    # }
     
-    # input_data = event['body']
-    # input_data = json.loads(input_data)
+    input_data = event['body']
+    input_data = json.loads(input_data)
     
     send = input_data['send']
     group_id = input_data['group_id']
