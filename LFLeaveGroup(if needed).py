@@ -43,14 +43,6 @@ def del_by_index(INDEX):
     }
     opensearch_client.delete_by_query(index=INDEX, body=delete_query, refresh=True)
 
-def del_by_group(group_id):
-    opensearch_client=opensearch_init()
-
-    opensearch_client.delete(
-        index = INDEX2,
-        id = str(group_id)
-    )
-
 def ins_by_index(INDEX,document,id):
     opensearch_client=opensearch_init()
     # document = {"user_id": 1,"group_id": [2]}
@@ -83,7 +75,8 @@ def lambda_handler(event, context):
 
     # mock input data
     # input_data = {
-    #     "group_id":1,
+    #     "user_id":1,
+    #     "group_id":2,
     # }
 
     # TODO implement
@@ -93,6 +86,7 @@ def lambda_handler(event, context):
     input_data = event['body']
     input_data = json.loads(input_data)
 
+    user_id = input_data["user_id"]
     group_id = input_data["group_id"]
     opensearch_client = opensearch_init()
 
@@ -102,42 +96,50 @@ def lambda_handler(event, context):
     # adding it to user-group, group-user
     orginal_data={}
     updated_data={}
-    
-    print("2. deleting from group-user")
+    print("2. adding it to user-group, group-user")
+    result = search_by_index(INDEX1,"user_id",user_id)
+    results1=result[0]['group_id']
+    print(f"\tBefore user - Group id: {results1}")
+    orginal_data["orginal_master_user_group_id"]=results1
+
+    results1.remove(group_id)
+    user_document = {"user_id": user_id, "group_id": results1}
+    ins_by_index(INDEX1,user_document,user_id)
+
+    result = search_by_index(INDEX1,"user_id",user_id)
+    check_group_id=result[0]['group_id']
+    print(f"\tAfter user -Group id: {check_group_id}")
+    updated_data["user_master_group_id"]=check_group_id
+
     result = search_by_index(INDEX2,"group_id",group_id)
     results2=result[0]['user_id']
-    results3=result[0]['leader_id']
-    print(f"\tGroup user_id: {results2}")
-    print(f"\tGroup leader_id: {results3}")
-    orginal_data["group_user_id"]=results2
-    orginal_data["group_leader_id"]=results3
-    del_by_group(group_id)
+    print(f"\tBefore Group to user_id: {results2}")
+    orginal_data["orginal_group_user_id"]=results2
     
-    print("3. deleting from user-group")
-    results2.append(results3)
-    
-    orginal_data["user_data"]=[]
-    updated_data["user_data"]=[]
-    for user_id in results2:
-        result = search_by_index(INDEX1,"user_id",user_id)
-        results1=result[0]['group_id']
-        print(f"\tBefore user - Group id: {results1}")
-        orginal_data["user_data"].append(result[0])
+    results2.remove(user_id)
+    group_document = {"group_id":group_id, "user_id": results2}
+    ins_by_index(INDEX2,group_document,group_id)
 
-        results1.remove(group_id)
-        user_document = {"user_id": user_id, "group_id": results1}
-        ins_by_index(INDEX1,user_document,user_id)
+    result = search_by_index(INDEX2,"group_id",group_id)
+    check_group_id=result[0]['user_id']
+    print(f"\tAfter Group to user_id: {check_group_id}")
+    updated_data["group_user_id"]=check_group_id
     
-        result = search_by_index(INDEX1,"user_id",user_id)
-        check_group_id=result[0]['group_id']
-        print(f"\tAfter user -Group id: {check_group_id}")
-        updated_data["user_data"].append(result[0])
-
-    
-    response = {"message": "group removed","input":input_data, "orginal_data":orginal_data, "updated_data":updated_data}
+    response = {"input":input_data, "orginal_data":orginal_data, "updated_data":updated_data}
     return {
         'statusCode': 200,
         'body': json.dumps(response)
     }
 
 
+
+
+# def lambda_handler(event, context):
+#     print(event)
+
+#     # FOR TESTING ONLY
+#     dummy_response = "TEST SUCCESS"
+#     return {
+#         'statusCode': 200,
+#         'body': json.dumps(dummy_response)
+#     }
