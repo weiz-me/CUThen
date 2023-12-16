@@ -142,8 +142,9 @@ def lambda_handler(event, context):
     check_group_id=result[0]['user_id']
     print(f"\tAfter Group to user_id: {check_group_id}")
     updated_data["group_user_id"]=check_group_id
+    updated_data = result[0]
     
-    response = {"message":f"Group {group_id} created", "new group": group_id, "input":input_data, "orginal_data":orginal_data, "updated_data":updated_data}
+    response = {"message":f"Group {group_id} created", "input":input_data, "new_data":updated_data}
     return {
         'statusCode': 200,
         'body': json.dumps(response)

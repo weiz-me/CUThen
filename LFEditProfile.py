@@ -34,7 +34,7 @@ def lambda_handler(event, context):
     update_item_list({'user_id':user_data['user_id']},user_data,table="user_table")
     updated_Data = lookup_data({'user_id': user_data["user_id"]}, table="user_table")
 
-    response = {"message":"success","input": user_data , "orginal_data": orginal, "updated_Data":updated_Data}
+    response = {"message":"success","input": user_data , "updated_Data":updated_Data}
     resp = {
             'statusCode': 200,
             'body': json.dumps(response)
