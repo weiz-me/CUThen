@@ -141,11 +141,12 @@ def lambda_handler(event, context):
 
         result = search_by_index(INDEX2,"group_id",accepted_inv_id)
         results2=result[0]['user_id']
+        results3=result[0]['leader_id']
         print(f"\tBefore Group to user_id: {results2}")
         orginal_data["orginal_group_user_id"]=results2
         
         results2.append(user_id)
-        group_document = {"group_id":accepted_inv_id, "user_id": results2}
+        group_document = {"group_id":accepted_inv_id, "leader_id":results3, "user_id": results2}
         ins_by_index(INDEX2,group_document,accepted_inv_id)
     
         result = search_by_index(INDEX2,"group_id",accepted_inv_id)
@@ -153,7 +154,7 @@ def lambda_handler(event, context):
         print(f"\tAfter user -Group id: {check_group_id}")
         updated_data["group_user_id"]=check_group_id
 
-    response_data = {"input":updated_data, "orginal_data":orginal_data, "updated_data":updated_data}
+    response_data = {"message":"accept successful","input":user_data, "orginal_data":orginal_data, "updated_data":updated_data}
     return {
         'statusCode': 200,
         'body': json.dumps(response_data)
