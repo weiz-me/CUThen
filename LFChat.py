@@ -1,21 +1,82 @@
 
+
 import json
 import boto3
 from botocore.exceptions import ClientError
 from datetime import datetime, timedelta
+from opensearchpy import OpenSearch, RequestsHttpConnection
+from requests_aws4auth import AWS4Auth
+
+REGION = 'us-east-1'
+HOST = 'search-cuthen-temp-5fyo5fvs7x7t2myle4ztwa7swa.us-east-1.es.amazonaws.com'
+
+INDEX0 = 'max_id'
+
+def get_awsauth(region, service):
+    cred = boto3.Session().get_credentials()
+    return AWS4Auth(cred.access_key,
+                    cred.secret_key,
+                    region,
+                    service,
+                    session_token=cred.token)
+
+def opensearch_init():
+    opensearch_client = OpenSearch(hosts=[{
+        'host': HOST,
+        'port': 443
+    }],
+                        http_auth=get_awsauth(REGION, 'es'),
+                        use_ssl=True,
+                        verify_certs=True,
+                        connection_class=RequestsHttpConnection)
+    return opensearch_client
+def del_by_index(INDEX):
+    opensearch_client=opensearch_init()
+    delete_query = {
+        "query": {
+            "match_all": {}
+        }
+    }
+    opensearch_client.delete_by_query(index=INDEX, body=delete_query, refresh=True)
+
+def ins_by_index(INDEX,document,id):
+    opensearch_client=opensearch_init()
+    # document = {"user_id": 1,"group_id": [2]}
+    rm_res = opensearch_client.index(index=INDEX, id = id, body=document, refresh=True)
+
+def search_by_index(INDEX,field,user_id):
+    opensearch_client=opensearch_init()
+    # field = "user_id"
+    q3 = {
+        "query": {
+            "query_string": {
+              "query": user_id,
+                "fields": [field]
+                }
+            }
+        }
+    res3 = opensearch_client.search(index=INDEX, body=q3)
+    
+    hits = res3['hits']['hits']
+    results = []
+    for hit in hits:
+        results.append(hit['_source'])
+
+    print(f"{results =}")
+    return results
 
 def lambda_handler(event, context):
     print(event)
 
-    # input_data = {
-    #     "send": 1,
-    #     "group_id": 1,
-    #     "user_id": 1,
-    #     "message":"hello, testing, testing"
-    # }
+    input_data = {
+        "send": 1,
+        "group_id": 1,
+        "user_id": 3,
+        "message":"hello, wei testing"
+    }
     
-    input_data = event['body']
-    input_data = json.loads(input_data)
+    # input_data = event['body']
+    # input_data = json.loads(input_data)
     
     send = input_data['send']
     group_id = input_data['group_id']
@@ -31,12 +92,18 @@ def lambda_handler(event, context):
     if send:
         user_id = input_data['user_id']
         message = input_data['message']
+    
+        print("0. getting chat id")
+        result = search_by_index(INDEX0,"type","chat_id")
+        chat_id = result[0]['max'] + 1
+        user_document = {"max": chat_id, "type":"chat_id"}
+        ins_by_index(INDEX0,user_document,3)
+        print(f"{chat_id = }")
 
-        
         
         print("1. inserting into database")
         messages_data = [
-            {'chat_id': 5, 'group_id': group_id, 'user_id': user_id, 'message': message, 'time': (datetime.now()).isoformat()}
+            {'chat_id': chat_id, 'group_id': group_id, 'user_id': user_id, 'message': message, 'time': (datetime.now()).isoformat()}
         ]
         insert_data(messages_data, table="chat_table")
     
@@ -129,4 +196,6 @@ def insert_data(data_list, db=None, table='6998Demo'):
         response = table.put_item(Item=data)
     print('@insert_data: response', response)
     return response
+
+
 
