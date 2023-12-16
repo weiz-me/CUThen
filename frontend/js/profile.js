@@ -25,9 +25,13 @@ window.addEventListener("load", function () {
   const maxWidth = 50;
   const maxHeight = 50;
 
-  user_id = "1";
-  user_vector = callProfileGetApi(user_id);
-  var features = callProfileGetApi(user_vector);
+  var account = localStorage.getItem('_account');
+  account = atob(account);
+  account = JSON.parse(account);
+
+  const user_id = account.userId;
+  console.log("THIS IS THE USER ID: " + user_id);
+  var features = callProfileGetApi(user_id);
   features.forEach((feature) => {
     var featureName = feature.featureName;
     var featureValue = feature.featureValue;
