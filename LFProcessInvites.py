@@ -121,8 +121,11 @@ def lambda_handler(event, context):
     input_Data={"user_id":user_id,"accepted_inv_id":accepted_inv_id,"accept":accept}
     orginal_data={"orginal_pending_inv_ids":orginal_pending}
     updated_data={"pending_inv_ids":pending_inv_ids}
+    message = "decline successful"
     if accept:
         # adding it to user-group, group-user
+        message = "accept successful"
+
         print("2. adding it to user-group, group-user")
 
         result = search_by_index(INDEX1,"user_id",user_id)
@@ -153,8 +156,9 @@ def lambda_handler(event, context):
         check_group_id=result[0]['user_id']
         print(f"\tAfter user -Group id: {check_group_id}")
         updated_data["group_user_id"]=check_group_id
+        updated_data = result[0]
 
-    response_data = {"message":"accept successful","input":user_data, "orginal_data":orginal_data, "updated_data":updated_data}
+    response_data = {"message":message,"input":user_data, "updated_data":updated_data}
     return {
         'statusCode': 200,
         'body': json.dumps(response_data)

@@ -100,29 +100,29 @@ def lambda_handler(event, context):
     opensearch_client = opensearch_init()
 
     # adding it to user-group, group-user
-    orginal_data={}
-    updated_data={}
-    
+    # orginal_data={}
+    # updated_data={}
     print("2. deleting from group-user")
     result = search_by_index(INDEX2,"group_id",group_id)
     results2=result[0]['user_id']
     results3=result[0]['leader_id']
     print(f"\tGroup user_id: {results2}")
     print(f"\tGroup leader_id: {results3}")
-    orginal_data["group_user_id"]=results2
-    orginal_data["group_leader_id"]=results3
+    deleted_data = [result[0]]
+    # orginal_data["group_user_id"]=results2
+    # orginal_data["group_leader_id"]=results3
     del_by_group(group_id)
     
     print("3. deleting from user-group")
     results2.append(results3)
     
-    orginal_data["user_data"]=[]
-    updated_data["user_data"]=[]
+    # orginal_data["user_data"]=[]
+    # updated_data["user_data"]=[]
     for user_id in results2:
         result = search_by_index(INDEX1,"user_id",user_id)
         results1=result[0]['group_id']
         print(f"\tBefore user - Group id: {results1}")
-        orginal_data["user_data"].append(result[0])
+        # orginal_data["user_data"].append(result[0])
 
         results1.remove(group_id)
         user_document = {"user_id": user_id, "group_id": results1}
@@ -131,10 +131,10 @@ def lambda_handler(event, context):
         result = search_by_index(INDEX1,"user_id",user_id)
         check_group_id=result[0]['group_id']
         print(f"\tAfter user -Group id: {check_group_id}")
-        updated_data["user_data"].append(result[0])
+        # updated_data["user_data"].append(result[0])
 
     
-    response = {"message": "group removed","input":input_data, "orginal_data":orginal_data, "updated_data":updated_data}
+    response = {"message": "group removed","input":input_data,"deleted_data":deleted_data}
     return {
         'statusCode': 200,
         'body': json.dumps(response)
