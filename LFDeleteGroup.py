@@ -14,7 +14,7 @@ HOST = 'search-cuthen-temp-5fyo5fvs7x7t2myle4ztwa7swa.us-east-1.es.amazonaws.com
 INDEX1 = 'user_to_group'
 INDEX2 = 'group_to_user'
 INDEX3 = 'user_to_inv'
-INDEX0 = 'max_group_id'
+INDEX0 = 'max_id'
 
 def get_awsauth(region, service):
     cred = boto3.Session().get_credentials()
