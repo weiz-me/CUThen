@@ -100,7 +100,7 @@ def get_group(groupId):
 
 def lambda_handler(event, context):
     print(event)
-    currentUser = get_user("user_id": {"N":event['userId']}) # N denotes that the string value should be interpreted as a number
+    currentUser = get_user({"user_id": {"N":event['userId']}}) # N denotes that the string value should be interpreted as a number
 
     all_users = scan_data(table='user_table')
 
