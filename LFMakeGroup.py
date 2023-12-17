@@ -87,8 +87,8 @@ def lambda_handler(event, context):
     input_data = event['body']
     input_data = json.loads(input_data)
 
-    master_user_id = input_data["master_user_id"]
-    guest_user_id = input_data["guest_user_id"]
+    master_user_id = input_data["groupLeader"]
+    guest_user_id = input_data["groupLeader"]
     # opensearch_client = opensearch_init()
 
 
