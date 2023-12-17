@@ -113,15 +113,8 @@ def lambda_handler(event, context):
 
     print(f"Response: {ret}")
 
-    # FOR TESTING ONLY
-    dummy_response = {
-        "groups": [],
-        "userName": "test name",
-        "userFeatures": [],
-        "pendingInvites": []
-    }
     return {
         'statusCode': 200,
         "headers": {"Access-Control-Allow-Origin": "*"},
-        'body': json.dumps(dummy_response) # change to ret when testing
+        'body': json.dumps(ret)
     }
