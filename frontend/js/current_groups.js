@@ -97,19 +97,33 @@ const invites = [
   },
 ];
 
-function callProfileGetApiForGroupsAndInvites(user_id) {
-  // Should return an object containing user groups, name, features, and pending invites
-  // const userInfo = sdk.profileGet({ UserId: user_id });
-  // return [userInfo.data.groups, userInfo.data.pendingInvites];
-  return [groups, invites];
+function callProfilePostApi(user_id) {
+  //Should return an object containing user groups, name, features, and pending invites
+  var params = {};
+  var body = { userId: user_id };
+  var additionalParams = {};
+  sdk.profilePost(params, body, additionalParams).then((userInfo) => {
+    const userGroups = userInfo.data.groups;
+    var ledGroups = [];
+    for (let i = 0; i < userGroups.length; i++) {
+      if (userGroups[i].groupLeader.userId == user_id) {
+        ledGroups.push(userGroups[i].groupId);
+      }
+    }
+    localStorage.setItem("_ledGroups", btoa(JSON.stringify(ledGroups)));
+    localStorage.setItem("_userFeatures", btoa(JSON.stringify(userInfo.data.userFeatures)));
+    localStorage.setItem("_userGroups", btoa(JSON.stringify(userInfo.data.groups)));
+    localStorage.setItem("_userInvites", btoa(JSON.stringify(userInfo.data.pendingInvites)));
+    console.log("Updated");
+  });
 }
 
-function callGroupDeleteApi(user_id, group_leader_id, group_id) {
+function callGroupPutApi(user_id, group_leader_id, group_id) {
   if (user_id == group_leader_id) {
     params = {};
-    body = { GroupId: group_id };
+    body = { group_id: group_id };
     additionalParams = {};
-    return sdk.groupDelete(params, body, additionalParams);
+    return sdk.groupPut(params, body, additionalParams);
   }
   console.log("You cannot delete this group because you are not the group leader");
   return "You cannot delete this group because you are not the group leader";
@@ -196,10 +210,25 @@ window.addEventListener("load", function () {
   account = JSON.parse(account);
 
   const user_id = account.userId;
+  callProfilePostApi(user_id);
+
+  var features = localStorage.getItem("_userFeatures");
+  features = atob(features);
+  features = JSON.parse(features);
+
+  console.log(JSON.stringify(features));
+
+  var groups = localStorage.getItem("_userGroups");
+  groups = atob(groups);
+  groups = JSON.parse(groups);
+  console.log(JSON.stringify(groups));
+
+  var invites = localStorage.getItem("_userInvites");
+  invites = atob(invites);
+  invites = JSON.parse(invites);
+  console.log(JSON.stringify(invites));
+
   console.log("THIS IS THE USER ID: " + user_id);
-  var groupsAndInvites = callProfileGetApiForGroupsAndInvites(user_id);
-  var groups = groupsAndInvites[0];
-  var invites = groupsAndInvites[1];
   var index = 0;
 
   groups.forEach((group) => {
@@ -256,7 +285,7 @@ window.addEventListener("load", function () {
 
     deleteButton.setAttribute(
       "onclick",
-      "callGroupDeleteApi(" +
+      "callGroupPutApi(" +
         user_id +
         ", parentElement.getAttribute('data-groupLeaderId'), parentElement.getAttribute('data-groupId'))"
     );

@@ -17,14 +17,16 @@ function callProfilePostApi(user_id) {
     }
     localStorage.setItem("_ledGroups", btoa(JSON.stringify(ledGroups)));
     localStorage.setItem("_userFeatures", btoa(JSON.stringify(userInfo.data.userFeatures)));
+    localStorage.setItem("_userGroups", btoa(JSON.stringify(userInfo.data.groups)));
+    localStorage.setItem("_userInvites", btoa(JSON.stringify(userInfo.data.pendingInvites)));
     console.log("Updated");
   });
 }
 
 async function callModifyProfilePostApi(user_id, user_vector) {
-  params = {}
-  body = { currentUser: user_id, newFeatures: user_vector }
-  additionalParams = {}
+  params = {};
+  body = { currentUser: user_id, newFeatures: user_vector };
+  additionalParams = {};
   response = sdk.modifyProfilePost(params, body, additionalParams);
   callProfilePostApi(user_id);
   return response;
@@ -34,8 +36,9 @@ window.addEventListener("load", function () {
   const editButton = $("#editButton");
   const maxWidth = 50;
   const maxHeight = 50;
+  const unchangeableFeatures = ["user_id", "uni"]
 
-  var account = localStorage.getItem('_account');
+  var account = localStorage.getItem("_account");
   account = atob(account);
   account = JSON.parse(account);
 
@@ -53,23 +56,24 @@ window.addEventListener("load", function () {
     console.log(featureName + ": " + featureValue);
     var featureDiv = document.createElement("div");
 
-    var editField = document.createElement("input");
-    editField.setAttribute("type", "text");
-    editField.setAttribute("id", featureName);
-    editField.style.display = "block";
-
     featureDiv.setAttribute("class", "feature");
     featureDiv.innerHTML = featureName + ": " + featureValue;
-    // find the div with class "profile" and append the featureDiv to it as a child
     var profileDiv = document.getElementsByClassName("profile")[0];
     profileDiv.appendChild(featureDiv);
-    profileDiv.appendChild(editField);
+
+    if (!unchangeableFeatures.includes(featureName[0])) {
+      var editField = document.createElement("input");
+      editField.setAttribute("type", "text");
+      editField.setAttribute("id", featureName);
+      editField.style.display = "block";
+      profileDiv.appendChild(editField);
 
     editField.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         featureDiv.innerHTML = featureName + ": " + editField.value;
         for (let i = 0; i < features.length; i++) {
-          if (Object.keys(features[i])[0] == featureName[0]) { // Need to index into featureName because it's an array with one element
+          if (Object.keys(features[i])[0] == featureName[0]) {
+            // Need to index into featureName because it's an array with one element
             features[i][featureName] = editField.value;
             console.log("Feature Updated: " + featureName + ": " + features[i][featureName]);
           }
@@ -77,6 +81,7 @@ window.addEventListener("load", function () {
         editField.value = "";
       }
     });
+  }
   });
   editButton.click(function () {
     console.log(callModifyProfilePostApi(user_id, features));

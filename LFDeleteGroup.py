@@ -127,6 +127,7 @@ def lambda_handler(event, context):
         print(f"\tBefore user - Group id: {results1}")
         # orginal_data["user_data"].append(result[0])
 
+        print(f"RESULTS1: {results1}")
         results1.remove(group_id)
         user_document = {"user_id": user_id, "group_id": results1}
         ins_by_index(INDEX1,user_document,user_id)

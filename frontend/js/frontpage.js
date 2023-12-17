@@ -55,23 +55,26 @@ const matches = {
 var sdk = apigClientFactory.newClient({});
 
 function callProfilePostApi(user_id) {
-  //Should return an object containing user groups, name, features, and pending invites
-  var params = {};
-  var body = { userId: user_id };
-  var additionalParams = {};
-  sdk.profilePost(params, body, additionalParams).then((userInfo) => {
-    const userGroups = userInfo.data.groups;
-    var ledGroups = [];
-    for (let i = 0; i < userGroups.length; i++) {
-      if (userGroups[i].groupLeader.userId == user_id) {
-        ledGroups.push(userGroups[i].groupId);
+    //Should return an object containing user groups, name, features, and pending invites
+    var params = {};
+    var body = { userId: user_id };
+    var additionalParams = {};
+    sdk.profilePost(params, body, additionalParams).then((userInfo) => {
+      const userGroups = userInfo.data.groups;
+      var ledGroups = [];
+      for (let i = 0; i < userGroups.length; i++) {
+        if (userGroups[i].groupLeader.userId == user_id) {
+          ledGroups.push(userGroups[i].groupId);
+        }
       }
-    }
-    localStorage.setItem("_ledGroups", btoa(JSON.stringify(ledGroups)));
-    localStorage.setItem("_userFeatures", btoa(JSON.stringify(userInfo.data.userFeatures)));
-    console.log("Updated");
-  });
-}
+      localStorage.setItem("_ledGroups", btoa(JSON.stringify(ledGroups)));
+      localStorage.setItem("_userFeatures", btoa(JSON.stringify(userInfo.data.userFeatures)));
+      localStorage.setItem("_userGroups", btoa(JSON.stringify(userInfo.data.groups)));
+      localStorage.setItem("_userInvites", btoa(JSON.stringify(userInfo.data.pendingInvites)));
+      console.log("Updated");
+    });
+  }
+  
 
 function callMatchesPostApi(user_id) {
   params = {};
