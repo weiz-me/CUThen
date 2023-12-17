@@ -58,7 +58,7 @@ def query(client, index, field, term):
 
 def get_user(userId):
     user = {}
-    userInfo = lookup_data(key = userId, table='user_table')
+    userInfo = lookup_data(key = {"user_id": userId}, table='user_table')
     user['userId'] = userInfo['user_id']
     user['userName'] = userInfo['first_name'] + ' ' + userInfo['last_name']
     user['userFeatures'] = [{k: v} for k, v in userInfo.items()]
@@ -79,7 +79,7 @@ def get_group(client, groupId):
 def lambda_handler(event, context):
     print(f"Event: {event}")
     userId = event['body']
-    currentUser = get_user(userId)
+    currentUser = get_user(str(userId))
     ret = {}
 
     os_client = OpenSearch(hosts=[{
