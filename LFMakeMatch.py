@@ -109,6 +109,8 @@ def lambda_handler(event, context):
 
     other_users = [user for user in all_users if int(user['user_id']) != int(currentUser['userId'])]
     print(f"Other users: {other_users}")
+    for user in other_users:
+        user['user_id'] = str(user['user_id']) # Decimals are not JSON serializable so convert to string
 
     # FOR TESTING ONLY
     return {
