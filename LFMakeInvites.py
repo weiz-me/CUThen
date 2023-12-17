@@ -76,13 +76,13 @@ def get_group(client, groupId):
     group['groupMembers'] = gmember
     return group
 
-def sendEmail(invitee, group):
+def sendEmail(email, groupId):
     client = boto3.client('ses', region_name='us-east-1')
-    emailmsg = "Dear CUThen user,\n\nYou have an invitation to join group #" + str(group)
+    emailmsg = "Dear CUThen user,\n\nYou have an invitation to join group #" + str(groupId)
     + "!\n\nPlease log in to CUThen to accept or reject the invitation.\n\nBest,\nCUThen Team"
     message = {
         'Subject': {
-            'Data': "CUThen - You have an invitation to join group #" + str(group) + "!"
+            'Data': "CUThen - You have an invitation to join group #" + str(groupId) + "!"
         },
         'Body': {
             'Text': {
@@ -92,7 +92,7 @@ def sendEmail(invitee, group):
     }
     response = client.send_email(Source='chengyu.sun@columbia.edu', 
                                  Destination={
-                                    'ToAddresses': [invitee['email']],
+                                    'ToAddresses': [email],
                                     'BccAddresses': [],
                                     'CcAddresses': []
                                     },
@@ -123,8 +123,15 @@ def lambda_handler(event, context):
             'body': json.dumps("Already invited!")
         }
     
-    # sending emails - skipped for now
-    # sendEmail(userId, groupId)
+    user_info = get_user(userId)
+    email = ""
+    for d in user_info['userFeatures']:
+        if 'email' in d:
+            email = d['email']
+            break
+    
+    # sending emails
+    sendEmail(email, groupId)
 
     inv_document = {"user_id": userId, "pending_inv_ids": user_inv['pending_inv_ids'] + [groupId]}
     os_client.index(index=INDEX2, id = int(userId), body=inv_document, refresh=True)
