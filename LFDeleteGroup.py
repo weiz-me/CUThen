@@ -117,7 +117,8 @@ def lambda_handler(event, context):
     del_by_group(group_id)
     
     print("3. deleting from user-group")
-    results2.append(results3)
+    if results3 not in results2:
+        results2.append(results3)
     
     # orginal_data["user_data"]=[]
     # updated_data["user_data"]=[]
