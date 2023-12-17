@@ -11,14 +11,10 @@ from requests_aws4auth import AWS4Auth
 from botocore.exceptions import ClientError
 
 REGION = 'us-east-1'
-HOST_USER_GROUP = '' # TODO: fill in host
-INDEX_USER_GROUP = '' # TODO: fill in index
-HOST_GROUP_USER = '' # TODO: fill in host
-INDEX_GROUP_USER = '' # TODO: fill in index
-HOST_GROUP_LEADER = '' # TODO: fill in host
-INDEX_GROUP_LEADER = '' # TODO: fill in index
-HOST_USER_INVITATION = '' # TODO: fill in host
-INDEX_USER_INVITATION = '' # TODO: fill in index
+HOST = 'search-cuthen-temp-5fyo5fvs7x7t2myle4ztwa7swa.us-east-1.es.amazonaws.com'
+INDEX1 = 'user_to_group'
+INDEX2 = 'user_to_inv'
+INDEX3 = 'group_to_user'
 
 def get_awsauth(region, service):
     cred = boto3.Session().get_credentials()
@@ -28,27 +24,7 @@ def get_awsauth(region, service):
                     service,
                     session_token=cred.token)
 
-# query from opensearch instance
-def query(term, host, index):
-    q = {'query': {'multi_match': {'query': term}}}
-
-    client = OpenSearch(hosts=[{
-        'host': host,
-        'port': 443
-        }],
-        http_auth=get_awsauth(REGION, 'es'),
-        use_ssl=True,
-        verify_certs=True,
-        connection_class=RequestsHttpConnection)
-
-    res = client.search(index=index, body=q)
-
-    hits = res['hits']['hits']
-
-    return hits
-
-# get data from dynamodb
-def lookup_data(key, db=None, table=''):
+def lookup_data(key, db=None, table='user_table'):
     if not db:
         db = boto3.resource('dynamodb')
     table = db.Table(table)
@@ -58,16 +34,81 @@ def lookup_data(key, db=None, table=''):
         print('Error', e.response['Error']['Message'])
         return False
     else:
-        #print(response['Item'])
-        return response['Item']
+        ret = response['Item']
+        ret['user_id'] = int(ret['user_id'])
+        return ret
+
+def scan_data(db=None, table='user_table'):
+    if not db:
+        db = boto3.resource('dynamodb')
+    table = db.Table(table)
+    try:
+        response = table.scan()
+    except ClientError as e:
+        print('Error', e.response['Error']['Message'])
+        return False
+    else:
+        ret = response['Items']
+        return ret
+
+def query(index, field, term):
+    q = {"query": {
+            "bool": {
+                "must": {
+                    "match": {
+                        field: term
+                    }
+                }
+            }
+        }
+    }
+
+    client = OpenSearch(hosts=[{
+        'host': HOST,
+        'port': 443
+    }],
+                        http_auth=get_awsauth(REGION, 'es'),
+                        use_ssl=True,
+                        verify_certs=True,
+                        connection_class=RequestsHttpConnection)
+
+    res = client.search(index=index, body=q)
+    print(res)
+
+    hits = res['hits']['hits']
+    return hits[0]['_source']
+
+def get_user(userId):
+    user = {}
+    userInfo = lookup_data(key = userId, table='user_table')
+    user['userId'] = userInfo['user_id']
+    user['userName'] = userInfo['first_name'] + ' ' + userInfo['last_name']
+    user['userFeatures'] = [{k: v} for k, v in userInfo.items()]
+    return user
+
+def get_group(groupId):
+    group = {}
+    gobj = query(index=INDEX3, field='group_id', term=str(groupId))
+    gleader = get_user(gobj['leader_id'])
+    gmember = []
+    for mid in gobj['user_id']:
+        gmember.append(get_user(mid))
+    group['groupId'] = int(groupId)
+    group['groupLeader'] = gleader
+    group['groupMembers'] = gmember
+    return group
 
 def lambda_handler(event, context):
     print(event)
+    userId = json.loads(event['body'])
+    currentUser = get_user(int(userId['userId']))
+
+    all_users = scan_data(table='user_table')
+
+    other_users = [user for user in all_users if int(user['user_id']) != int(currentUser['user_id'])]
+
     # FOR TESTING ONLY
-    dummy_response = {
-        "compatibleUsers": []
-    }
     return {
         'statusCode': 200,
-        'body': json.dumps(dummy_response)
+        'body': json.dumps(other_users)
     }
