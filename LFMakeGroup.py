@@ -110,7 +110,8 @@ def lambda_handler(event, context):
 
     results1.append(group_id)
     user_document = {"user_id": master_user_id, "group_id": results1}
-    ins_by_index(INDEX1,user_document,master_user_id)
+    if master_user_id not in results1:
+        ins_by_index(INDEX1,user_document,master_user_id)
 
     result = search_by_index(INDEX1,"user_id",master_user_id)
     check_group_id=result[0]['group_id']
