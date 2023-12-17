@@ -107,7 +107,7 @@ def lambda_handler(event, context):
     print(f"All users: {all_users}")
     print(f"Current user: {currentUser}")
 
-    other_users = [user for user in all_users if int(user['user_id']) != int(currentUser['user_id'])]
+    other_users = [user for user in all_users if int(user['user_id']) != int(currentUser['userId'])]
 
     # FOR TESTING ONLY
     return {
