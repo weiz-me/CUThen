@@ -90,7 +90,7 @@ def sendEmail(email, groupId):
 def lambda_handler(event, context):
     print(event)
 
-    inv = json.loads(event['body']['o_inv'])
+    inv = json.loads(event['body'])['o_inv']
     userId = int(inv['invitee'])
     groupId = int(inv['currentGroup'])
 
