@@ -2,11 +2,32 @@
 
 var sdk = apigClientFactory.newClient({});
 
-function callModifyProfilePostApi(user_id, user_vector) {
+function callProfilePostApi(user_id) {
+  //Should return an object containing user groups, name, features, and pending invites
+  var params = {};
+  var body = { userId: user_id };
+  var additionalParams = {};
+  sdk.profilePost(params, body, additionalParams).then((userInfo) => {
+    const userGroups = userInfo.data.groups;
+    var ledGroups = [];
+    for (let i = 0; i < userGroups.length; i++) {
+      if (userGroups[i].groupLeader.userId == user_id) {
+        ledGroups.push(userGroups[i].groupId);
+      }
+    }
+    localStorage.setItem("_ledGroups", btoa(JSON.stringify(ledGroups)));
+    localStorage.setItem("_userFeatures", btoa(JSON.stringify(userInfo.data.userFeatures)));
+    console.log("Updated");
+  });
+}
+
+async function callModifyProfilePostApi(user_id, user_vector) {
   params = {}
   body = { currentUser: user_id, newFeatures: user_vector }
   additionalParams = {}
-  return sdk.modifyProfilePost(params, body, additionalParams);
+  response = sdk.modifyProfilePost(params, body, additionalParams);
+  callProfilePostApi(user_id);
+  return response;
 }
 
 window.addEventListener("load", function () {
@@ -23,6 +44,8 @@ window.addEventListener("load", function () {
   features = JSON.parse(features);
 
   const user_id = account.userId;
+  callProfilePostApi(user_id);
+
   console.log("THIS IS THE USER ID: " + user_id);
   features.forEach((feature) => {
     var featureName = Object.keys(feature);
@@ -46,9 +69,9 @@ window.addEventListener("load", function () {
       if (e.key === "Enter") {
         featureDiv.innerHTML = featureName + ": " + editField.value;
         for (let i = 0; i < features.length; i++) {
-          if (features[i].featureName === featureName) {
-            features[i].featureValue = editField.value;
-            console.log("Feature Updated: " + features[i].featureName + ": " + features[i].featureValue);
+          if (Object.keys(features[i])[0] == featureName[0]) { // Need to index into featureName because it's an array with one element
+            features[i][featureName] = editField.value;
+            console.log("Feature Updated: " + featureName + ": " + features[i][featureName]);
           }
         }
         editField.value = "";

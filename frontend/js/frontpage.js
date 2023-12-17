@@ -69,7 +69,7 @@ function callProfilePostApi(user_id) {
     }
     localStorage.setItem("_ledGroups", btoa(JSON.stringify(ledGroups)));
     localStorage.setItem("_userFeatures", btoa(JSON.stringify(userInfo.data.userFeatures)));
-    //   return [1, 2, 3];
+    console.log("Updated");
   });
 }
 
