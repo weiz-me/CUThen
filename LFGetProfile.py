@@ -55,6 +55,8 @@ def query(client, index, field, term):
 
     hits = res['hits']['hits']
     print(f"hits: {hits}")
+    if len(hits) == 0:
+        return False
     return hits[0]['_source']
 
 def get_user(userId):
@@ -69,15 +71,17 @@ def get_user(userId):
 def get_group(client, groupId):
     group = {}
     gobj = query(client=client, index=INDEX3, field='group_id', term=str(groupId))
-    gleader = get_user(gobj['leader_id'])
-    gmember = []
-    for mid in gobj['user_id']:
-        gmember.append(get_user(mid))
-    group['groupId'] = int(groupId)
-    group['groupLeader'] = gleader
-    group['groupMembers'] = gmember
-    print(f"Group: {group}")
-    return group
+    if gobj:
+        gleader = get_user(gobj['leader_id'])
+        gmember = []
+        for mid in gobj['user_id']:
+            gmember.append(get_user(mid))
+        group['groupId'] = int(groupId)
+        group['groupLeader'] = gleader
+        group['groupMembers'] = gmember
+        print(f"Group: {group}")
+        return group
+    return {}
 
 def lambda_handler(event, context):
     print(f"Event: {event}")
@@ -101,9 +105,9 @@ def lambda_handler(event, context):
     groups = []
     invs = []
     for gid in user_to_group['group_id']:
-        print(f"gid: {gid}")
-        print(f"group: {get_group(os_client, gid)}")
-        groups.append(get_group(os_client, gid))
+        cur_group = get_group(os_client, gid)
+        if len(cur_group) > 0:
+            groups.append(get_group(os_client, gid))
     
     for iid in user_to_inv['pending_inv_ids']:
         invs.append({
