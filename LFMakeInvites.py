@@ -58,23 +58,11 @@ def query(client, index, field, term):
 
 def get_user(userId):
     user = {}
-    userInfo = lookup_data(key = userId, table='user_table')
+    userInfo = lookup_data(key = {"user_id": userId}, table='user_table')
     user['userId'] = userInfo['user_id']
     user['userName'] = userInfo['first_name'] + ' ' + userInfo['last_name']
     user['userFeatures'] = [{k: v} for k, v in userInfo.items()]
     return user
-
-def get_group(client, groupId):
-    group = {}
-    gobj = query(client=client, index=INDEX3, field='group_id', term=str(groupId))
-    gleader = get_user(gobj['leader_id'])
-    gmember = []
-    for mid in gobj['user_id']:
-        gmember.append(get_user(mid))
-    group['groupId'] = int(groupId)
-    group['groupLeader'] = gleader
-    group['groupMembers'] = gmember
-    return group
 
 def sendEmail(email, groupId):
     client = boto3.client('ses', region_name='us-east-1')
