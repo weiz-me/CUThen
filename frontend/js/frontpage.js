@@ -77,9 +77,8 @@ function callMatchesPostApi(user_id) {
   params = {};
   body = { userId: user_id };
   additionalParams = {};
-  // Catch the error
   sdk
-    .matchmakerPost(params, body, additionalParams)
+    .matchmakerPost(params, body, additionalParams) // There is an internal server error here
     .then((response) => {
       localStorage.setItem("_matches", btoa(JSON.stringify(response)));
       console.log(JSON.stringify(response));
