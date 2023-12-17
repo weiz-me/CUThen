@@ -103,6 +103,7 @@ def lambda_handler(event, context):
         group_id = 1
     else:
         group_id = result[0]['max'] + 1
+        print(f"UPDATED: {group_id}")
     user_document = {"max": group_id, "type":"group_id"}
     print(f"\t{user_document = }")
     ins_by_index(INDEX0,user_document,1)
