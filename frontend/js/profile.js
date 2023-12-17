@@ -2,22 +2,11 @@
 
 var sdk = apigClientFactory.newClient({});
 
-function callProfileGetApi(user_id) {
-  // Should return an object containing user groups, name, features, and pending invites
-  // const userInfo = sdk.profileGet({ UserId: user_id });
-  // return userInfo.data.userFeatures; // Should be an array of features (each one is an object containing a name and a value)
-  return [
-    { featureName: "Feature 1", featureValue: "Value 1" },
-    { featureName: "Feature 2", featureValue: "Value 2" },
-  ];
-}
-
-function callProfilePostApi(user_id, user_vector) {
-  // return sdk.profilePost({ currentUser: user_id, newFeatures: user_vector });
-  for (let i = 0; i < user_vector.length; i++) {
-    console.log(user_vector[i].featureName + ": " + user_vector[i].featureValue);
-  }
-  return "Success";
+function callModifyProfilePostApi(user_id, user_vector) {
+  params = {}
+  body = { currentUser: user_id, newFeatures: user_vector }
+  additionalParams = {}
+  return sdk.modifyProfilePost(params, body, additionalParams);
 }
 
 window.addEventListener("load", function () {
@@ -29,12 +18,15 @@ window.addEventListener("load", function () {
   account = atob(account);
   account = JSON.parse(account);
 
+  var features = localStorage.getItem("_userFeatures");
+  features = atob(features);
+  features = JSON.parse(features);
+
   const user_id = account.userId;
   console.log("THIS IS THE USER ID: " + user_id);
-  var features = callProfileGetApi(user_id);
   features.forEach((feature) => {
-    var featureName = feature.featureName;
-    var featureValue = feature.featureValue;
+    var featureName = Object.keys(feature);
+    var featureValue = Object.values(feature);
     console.log(featureName + ": " + featureValue);
     var featureDiv = document.createElement("div");
 
@@ -64,6 +56,6 @@ window.addEventListener("load", function () {
     });
   });
   editButton.click(function () {
-    console.log(callProfilePostApi(user_id, features));
+    console.log(callModifyProfilePostApi(user_id, features));
   });
 });

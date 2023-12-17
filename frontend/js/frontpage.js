@@ -77,10 +77,18 @@ function callMatchesPostApi(user_id) {
   params = {};
   body = { userId: user_id };
   additionalParams = {};
-  sdk.matchmakerPost(params, body, additionalParams).then((response) => {
-    console.log(JSON.stringify(response));
-    return response;
-  });
+  // Catch the error
+  sdk
+    .matchmakerPost(params, body, additionalParams)
+    .then((response) => {
+      localStorage.setItem("_matches", btoa(JSON.stringify(response)));
+      console.log(JSON.stringify(response));
+      return response;
+    })
+    .catch((error) => {
+      console.log(error);
+      return null;
+    });
 }
 
 function showPrompt(inviteeId, inviteeName, ledGroups) {
@@ -146,6 +154,10 @@ window.addEventListener("load", async function () {
   // send the message to API
   var response = callMatchesPostApi(user_id);
   console.log(response);
+  while (response == null) {
+    console.log("Waiting for response...");
+    await new Promise((r) => setTimeout(r, 500));
+  }
   var compats = response.data.compatibleUsers;
   var ledGroups = JSON.parse(atob(localStorage.getItem("_ledGroups")));
   if (compats && compats.length > 1) {
