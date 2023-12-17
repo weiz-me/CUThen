@@ -56,12 +56,14 @@ def lookup_data(key, db=None, table='6998Demo'):
         print(f"{res =}")
         return response['Item']
         
-def update_item_list(key, feature_dict, db=None, table='6998Demo'):
+def update_item_list(key, feature_dict_list, db=None, table='6998Demo'):
     if not db:
         db = boto3.resource('dynamodb')
     table = db.Table(table)
 
-    for feature_name, feature in feature_dict.items():
+    for feature_dict in feature_dict_list:
+        feature_name, feature = list(feature_dict.items())[0]
+        print(f"feature_name: {feature_name}, feature: {feature}")
         if feature_name == "user_id":
             continue
         
