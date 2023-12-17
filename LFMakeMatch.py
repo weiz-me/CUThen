@@ -89,10 +89,10 @@ def get_user(userId):
 def get_group(groupId):
     group = {}
     gobj = query(index=INDEX3, field='group_id', term=str(groupId))
-    gleader = get_user(gobj['leader_id'])
+    gleader = get_user({"user_id": gobj['leader_id']})
     gmember = []
     for mid in gobj['user_id']:
-        gmember.append(get_user(mid))
+        gmember.append(get_user({"user_id": mid))
     group['groupId'] = int(groupId)
     group['groupLeader'] = gleader
     group['groupMembers'] = gmember
@@ -100,7 +100,7 @@ def get_group(groupId):
 
 def lambda_handler(event, context):
     print(event)
-    currentUser = get_user({"user_id": {"N":event['userId']}}) # N denotes that the string value should be interpreted as a number
+    currentUser = get_user({"user_id": int(event['userId'])})
 
     all_users = scan_data(table='user_table')
 
