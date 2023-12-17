@@ -82,16 +82,12 @@ function callMatchesPostApi(user_id) {
   body = { userId: user_id };
   additionalParams = {};
   sdk
-    .matchmakerPost(params, body, additionalParams) // There is an internal server error here
+    .matchmakerPost(params, body, additionalParams)
     .then((response) => {
       localStorage.setItem("_matches", btoa(JSON.stringify(response)));
       console.log(JSON.stringify(response));
       return response;
     })
-    .catch((error) => {
-      console.log(error);
-      return null;
-    });
 }
 
 function showPrompt(inviteeId, inviteeName, ledGroups) {
@@ -155,27 +151,25 @@ window.addEventListener("load", async function () {
   callProfilePostApi(user_id);
 
   // send the message to API
-  var response = callMatchesPostApi(user_id);
-  console.log(response);
-  while (response == null) {
-    console.log("Waiting for response...");
-    await new Promise((r) => setTimeout(r, 500));
-  }
-  var compats = response.data.compatibleUsers;
+  callMatchesPostApi(user_id);
+  var response = JSON.parse(atob(localStorage.getItem("_matches")));
+  console.log("Response: " + JSON.stringify(response));
+  var compats = JSON.parse(response.data.body);
+  console.log("Compats: " + JSON.stringify(compats)); 
   var ledGroups = JSON.parse(atob(localStorage.getItem("_ledGroups")));
   if (compats && compats.length > 1) {
-    //console.log('received ' + (compats.length - 1) + ' matches');
     var displaySet = new Set();
     for (let i = 0; i < compats.length; i++) {
-      if (displaySet.has(compats[i].userId)) {
+      console.log("ID: " + compats[i].user_id)
+      if (displaySet.has(compats[i].user_id)) {
         continue;
       } else {
         var item = document.createElement("div");
-        item.setAttribute("data-user-id", compats[i].userId);
+        item.setAttribute("data-user-id", compats[i].user_id);
         item.setAttribute("grid-column", (i % 3) + " / span 1");
         item.setAttribute("grid-row", Math.floor(i / 3) + " / span 1");
         item.setAttribute("class", "grid-item");
-        item.innerHTML = compats[i].userName;
+        item.innerHTML = compats[i].first_name + " " + compats[i].last_name;
 
         // Add button to grid-item
         var button = document.createElement("button");
@@ -183,10 +177,10 @@ window.addEventListener("load", async function () {
         button.setAttribute(
           "onclick",
           "showPrompt(" +
-            compats[i].userId +
+            compats[i].user_id +
             "," +
             '"' +
-            compats[i].userName +
+            compats[i].first_name + " " + compats[i].last_name +
             '"' +
             "," +
             JSON.stringify(ledGroups) +
@@ -196,12 +190,17 @@ window.addEventListener("load", async function () {
 
         // Display text in grid-item
         const hiddenFeatures = [];
-        for (let j = 0; j < compats[i].userFeatures.length; j++) {
+        console.log("HELLO: "+ Object.entries(compats[i]).length);
+
+        for (let j = 0; j < Object.entries(compats[i]).length; j++) {
+          key = Object.keys(compats[i])[j];
+          value = Object.values(compats[i])[j];
           var feature = document.createElement("div");
+          console.log("Feature: " + key + ": " + value);
           feature.innerHTML +=
-            compats[i].userFeatures[j].featureName + ": " + compats[i].userFeatures[j].featureValue + "<br>";
+            key + ": " + value + "<br>";
           feature.setAttribute("class", "feature");
-          feature.setAttribute("id", compats[i].userId + "feature" + j);
+          feature.setAttribute("id", compats[i].user_id + "feature" + j);
           // Hide features after the first two
           if (j > 1) {
             feature.setAttribute("class", "hidden_feature");
@@ -211,13 +210,13 @@ window.addEventListener("load", async function () {
           item.appendChild(feature);
           item.setAttribute("onclick", "showHiddenFeatures(" + JSON.stringify(hiddenFeatures) + ")");
 
-          if (j == compats[i].userFeatures.length - 1) {
+          if (j == Object.entries(compats[i]).length - 1) {
             feature.appendChild(button);
           }
         }
 
         grid.appendChild(item);
-        displaySet.add(compats[i].userId);
+        displaySet.add(compats[i].user_id);
       }
     }
   } else {

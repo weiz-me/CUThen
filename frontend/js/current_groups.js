@@ -123,6 +123,7 @@ function callGroupPutApi(user_id, group_leader_id, group_id) {
     params = {};
     body = { group_id: group_id };
     additionalParams = {};
+    alert("Group deleted. Please wait a few moments to see this update here.")
     return sdk.groupPut(params, body, additionalParams);
   }
   console.log("You cannot delete this group because you are not the group leader");
@@ -133,7 +134,7 @@ function callGroupPostApi(user_id, group_members) {
   params = {};
   body = { groupLeader: user_id, groupMembers: group_members };
   additionalParams = {};
-  alert("Group created. You can now invite new members!");
+  alert("Group created. You can now invite new members! Please wait a few moments to see this update here.");
   return sdk.groupPost(params, body, additionalParams);
 }
 

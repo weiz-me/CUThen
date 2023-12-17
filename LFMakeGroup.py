@@ -107,6 +107,8 @@ def lambda_handler(event, context):
     user_document = {"max": group_id, "type":"group_id"}
     print(f"\t{user_document = }")
     ins_by_index(INDEX0,user_document,1)
+    result = search_by_index(INDEX0,"type","group_id")
+    print(f"\t Updated {result = }")
     print(f"{group_id = }")
 
     # adding it to user-group, group-user
