@@ -71,6 +71,7 @@ function callProfilePostApi(user_id) {
       localStorage.setItem("_userFeatures", btoa(JSON.stringify(userInfo.data.userFeatures)));
       localStorage.setItem("_userGroups", btoa(JSON.stringify(userInfo.data.groups)));
       localStorage.setItem("_userInvites", btoa(JSON.stringify(userInfo.data.pendingInvites)));
+      console.log(JSON.stringify(userInfo.data.groups));
       console.log("Updated");
     });
   }

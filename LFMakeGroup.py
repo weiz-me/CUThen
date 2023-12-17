@@ -98,7 +98,10 @@ def lambda_handler(event, context):
 
     print("1. getting groupid and update")
     result = search_by_index(INDEX0,"type","group_id")
-    group_id = result[0]['max'] + 1
+    if len(result) == 0:
+        group_id = 1
+    else:
+        group_id = result[0]['max'] + 1
     user_document = {"max": group_id, "type":"group_id"}
     ins_by_index(INDEX0,user_document,1)
     print(f"{group_id = }")
