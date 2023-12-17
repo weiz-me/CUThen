@@ -140,7 +140,8 @@ def lambda_handler(event, context):
     print(f"\tBefore user - Group id: {results1}")
     orginal_data["orginal_guest_user_group_id"]=results1
 
-    results1.append(group_id)
+    if guest_user_id not in results1:
+        results1.append(group_id)
     user_document = {"user_id": guest_user_id, "group_id": results1}
     ins_by_index(INDEX1,user_document,guest_user_id)
 
