@@ -33,8 +33,10 @@ def opensearch_init():
                         verify_certs=True,
                         connection_class=RequestsHttpConnection)
     return opensearch_client
+
+opensearch_client = opensearch_init()
 def del_by_index(INDEX):
-    opensearch_client=opensearch_init()
+    # opensearch_client=opensearch_init()
     delete_query = {
         "query": {
             "match_all": {}
@@ -43,12 +45,12 @@ def del_by_index(INDEX):
     opensearch_client.delete_by_query(index=INDEX, body=delete_query, refresh=True)
 
 def ins_by_index(INDEX,document,id):
-    opensearch_client=opensearch_init()
+    # opensearch_client=opensearch_init()
     # document = {"user_id": 1,"group_id": [2]}
     rm_res = opensearch_client.index(index=INDEX, id = id, body=document, refresh=True)
 
 def search_by_index(INDEX,field,user_id):
-    opensearch_client=opensearch_init()
+    # opensearch_client=opensearch_init()
     # field = "user_id"
     q3 = {
         "query": {
@@ -87,7 +89,7 @@ def lambda_handler(event, context):
 
     master_user_id = input_data["master_user_id"]
     guest_user_id = input_data["guest_user_id"]
-    opensearch_client = opensearch_init()
+    # opensearch_client = opensearch_init()
 
 
     print("1. getting groupid and update")
