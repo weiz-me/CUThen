@@ -38,7 +38,7 @@ def lookup_data(key, db=None, table='user_table'):
         ret['user_id'] = int(ret['user_id'])
         return ret
 
-def query(index, field, term):
+def query(client, index, field, term):
     q = {"query": {
             "bool": {
                 "must": {
@@ -50,23 +50,11 @@ def query(index, field, term):
         }
     }
 
-    client = OpenSearch(hosts=[{
-        'host': HOST,
-        'port': 443
-    }],
-                        http_auth=get_awsauth(REGION, 'es'),
-                        use_ssl=True,
-                        verify_certs=True,
-                        connection_class=RequestsHttpConnection)
-
     res = client.search(index=index, body=q)
-    #print(res)
+    print(res)
 
     hits = res['hits']['hits']
-    results = []
-    for hit in hits:
-        results.append(hit['_source'])
-    return results
+    return hits[0]['_source']
 
 def get_user(userId):
     user = {}
@@ -76,9 +64,9 @@ def get_user(userId):
     user['userFeatures'] = [{k: v} for k, v in userInfo.items()]
     return user
 
-def get_group(groupId):
+def get_group(client, groupId):
     group = {}
-    gobj = query(index=INDEX3, field='group_id', term=str(groupId))
+    gobj = query(client=client, index=INDEX3, field='group_id', term=str(groupId))
     gleader = get_user(gobj['leader_id'])
     gmember = []
     for mid in gobj['user_id']:
@@ -94,22 +82,33 @@ def lambda_handler(event, context):
     currentUser = get_user(userId)
     ret = {}
 
-    user_to_group = query(index=INDEX1, field='user_id', term=str(userId))
-    user_to_inv = query(index=INDEX2, field='user_id', term=str(userId))
+    os_client = OpenSearch(hosts=[{
+        'host': HOST,
+        'port': 443
+    }],
+                        http_auth=get_awsauth(REGION, 'es'),
+                        use_ssl=True,
+                        verify_certs=True,
+                        connection_class=RequestsHttpConnection)
+
+    user_to_group = query(client=os_client, index=INDEX1, field='user_id', term=str(userId))
+    user_to_inv = query(client=os_client, index=INDEX2, field='user_id', term=str(userId))
     groups = []
     invs = []
     for gid in user_to_group['group_id']:
-        groups.append(get_group(gid))
+        groups.append(get_group(os_client, gid))
     
     for iid in user_to_inv['pending_inv_ids']:
         invs.append({
-            'invitingGroup': get_group(iid),
+            'invitingGroup': get_group(os_client, iid),
             'invitee': currentUser
         })
     ret['groups'] = groups
     ret['userName'] = currentUser['userName']
     ret['userFeatures'] = currentUser['userFeatures']
     ret['pendingInvites'] = invs
+
+    print(ret)
 
     # FOR TESTING ONLY
     dummy_response = {
