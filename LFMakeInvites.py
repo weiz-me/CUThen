@@ -66,8 +66,8 @@ def get_user(userId):
 
 def sendEmail(email, groupId):
     client = boto3.client('ses', region_name='us-east-1')
-    emailmsg = "Dear CUThen user,\n\nYou have an invitation to join group #" + str(groupId)
-    + "!\n\nPlease log in to CUThen to accept or reject the invitation.\n\nBest,\nCUThen Team"
+    emailmsg = ("Dear CUThen user,\n\nYou have an invitation to join group #" + str(groupId)
+                + "!\n\nPlease log in to CUThen to accept or reject the invitation.\n\nBest,\nCUThen Team")
     message = {
         'Subject': {
             'Data': "CUThen - You have an invitation to join group #" + str(groupId) + "!"
