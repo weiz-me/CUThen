@@ -1,76 +1,86 @@
-//var sdk = apigClientFactory.newClient({});
-function callProfileGetApiForLedGroups(user_id) {
-  // Should return an object containing user groups, name, features, and pending invites
-  // const userInfo = sdk.profileGet({ UserId: user_id });
-  //const userGroups = userInfo.data.groups;
-  //var ledGroups = [];
-  //for (let i = 0; i < userGroups.length; i++) {
-  //  if (userGroups[i].groupLeader.userId == user_id) {
-  //      ledGroups.push(userGroups[i].groupId);
-  //  }
-  //}
-  //  return ledGroups;
-  // return userInfo.data.userFeatures; // Should be an array of features (each one is an object containing a name and a value)
-  return [1, 2, 3];
+const matches = {
+  data: {
+    compatibleUsers: [
+      {
+        userId: 2,
+        userName: "user2",
+        userFeatures: [
+          { featureName: "Feature 1", featureValue: "2Value 1" },
+          { featureName: "Feature 2", featureValue: "2Value 2" },
+          { featureName: "Feature 3", featureValue: "2Value 3" },
+          { featureName: "Feature 4", featureValue: "2Value 4" },
+          { featureName: "Feature 5", featureValue: "2Value 5" },
+        ],
+      },
+      {
+        userId: 3,
+        userName: "user3",
+        userFeatures: [
+          { featureName: "Feature 1", featureValue: "3Value 1" },
+          { featureName: "Feature 2", featureValue: "3Value 2" },
+          { featureName: "Feature 3", featureValue: "3Value 3" },
+        ],
+      },
+      {
+        userId: 4,
+        userName: "user4",
+        userFeatures: [
+          { featureName: "Feature 1", featureValue: "4Value 1" },
+          { featureName: "Feature 2", featureValue: "4Value 2" },
+          { featureName: "Feature 3", featureValue: "4Value 3" },
+        ],
+      },
+      {
+        userId: 5,
+        userName: "user5",
+        userFeatures: [
+          { featureName: "Feature 1", featureValue: "5Value 1" },
+          { featureName: "Feature 2", featureValue: "5Value 2" },
+          { featureName: "Feature 3", featureValue: "5Value 3" },
+        ],
+      },
+      {
+        userId: 6,
+        userName: "user6",
+        userFeatures: [
+          { featureName: "Feature 1", featureValue: "6Value 1" },
+          { featureName: "Feature 2", featureValue: "6Value 2" },
+          { featureName: "Feature 3", featureValue: "6Value 3" },
+        ],
+      },
+    ],
+  },
+};
+
+var sdk = apigClientFactory.newClient({});
+
+function callProfilePostApi(user_id) {
+  //Should return an object containing user groups, name, features, and pending invites
+  var params = {};
+  var body = { userId: user_id };
+  var additionalParams = {};
+  sdk.profilePost(params, body, additionalParams).then((userInfo) => {
+    const userGroups = userInfo.data.groups;
+    var ledGroups = [];
+    for (let i = 0; i < userGroups.length; i++) {
+      if (userGroups[i].groupLeader.userId == user_id) {
+        ledGroups.push(userGroups[i].groupId);
+      }
+    }
+    localStorage.setItem("_ledGroups", btoa(JSON.stringify(ledGroups)));
+    localStorage.setItem("_userFeatures", btoa(JSON.stringify(userInfo.data.userFeatures)));
+    //   return [1, 2, 3];
+  });
 }
 
 function callMatchesPostApi(user_id) {
-  // params, body, additionalParams
-  // console.log(message)
-  //return sdk.matchMakerPost({"UserId": user_id});
-  return {
-    data: {
-      compatibleUsers: [
-        {
-          userId: 2,
-          userName: "user2",
-          userFeatures: [
-            { featureName: "Feature 1", featureValue: "2Value 1" },
-            { featureName: "Feature 2", featureValue: "2Value 2" },
-            { featureName: "Feature 3", featureValue: "2Value 3" },
-            { featureName: "Feature 4", featureValue: "2Value 4" },
-            { featureName: "Feature 5", featureValue: "2Value 5" },
-          ],
-        },
-        {
-          userId: 3,
-          userName: "user3",
-          userFeatures: [
-            { featureName: "Feature 1", featureValue: "3Value 1" },
-            { featureName: "Feature 2", featureValue: "3Value 2" },
-            { featureName: "Feature 3", featureValue: "3Value 3" },
-          ],
-        },
-        {
-          userId: 4,
-          userName: "user4",
-          userFeatures: [
-            { featureName: "Feature 1", featureValue: "4Value 1" },
-            { featureName: "Feature 2", featureValue: "4Value 2" },
-            { featureName: "Feature 3", featureValue: "4Value 3" },
-          ],
-        },
-        {
-          userId: 5,
-          userName: "user5",
-          userFeatures: [
-            { featureName: "Feature 1", featureValue: "5Value 1" },
-            { featureName: "Feature 2", featureValue: "5Value 2" },
-            { featureName: "Feature 3", featureValue: "5Value 3" },
-          ],
-        },
-        {
-          userId: 6,
-          userName: "user6",
-          userFeatures: [
-            { featureName: "Feature 1", featureValue: "6Value 1" },
-            { featureName: "Feature 2", featureValue: "6Value 2" },
-            { featureName: "Feature 3", featureValue: "6Value 3" },
-          ],
-        },
-      ],
-    },
-  };
+  params = {};
+  body = { userId: user_id };
+  additionalParams = {};
+  sdk.matchmakerPost(params, body, additionalParams).then((response) => {
+    console.log(JSON.stringify(response));
+    return response;
+  });
 }
 
 function showPrompt(inviteeId, inviteeName, ledGroups) {
@@ -80,17 +90,12 @@ function showPrompt(inviteeId, inviteeName, ledGroups) {
   }
   while (true) {
     let invitingGroup = prompt(
-      "Enter the group ID you want to invite " +
-        inviteeName +
-        " to. Here are your options: " +
-        groupsString +
-        "."
+      "Enter the group ID you want to invite " + inviteeName + " to. Here are your options: " + groupsString + "."
     );
     console.log(JSON.stringify(ledGroups));
     if (ledGroups.includes(Number(invitingGroup))) {
-
       let message = "You have invited " + inviteeName + " to group " + invitingGroup;
-      callExtendInvitationPostApi({ invitee: inviteeId, currentGroup: Number(invitingGroup) })
+      callExtendInvitationPostApi({ invitee: inviteeId, currentGroup: Number(invitingGroup) });
       alert(message);
       console.log(message);
       return Number(invitingGroup);
@@ -106,9 +111,14 @@ function showPrompt(inviteeId, inviteeName, ledGroups) {
 }
 
 function callExtendInvitationPostApi(out_invitation) {
-  // return sdk.extendInvitationPost({ o_inv: out_invitation });
   console.log("Invitation Extended to " + out_invitation.invitee + " for group " + out_invitation.currentGroup + ".");
-  return "Invitation Extended to " + out_invitation.invitee + " for group " + out_invitation.currentGroup + ".";
+  params = {};
+  body = { o_inv: out_invitation };
+  additionalParams = {};
+  var response = sdk.extendInvitationPost(params, body, additionalParams);
+  console.log("Response: " + response);
+  return response;
+  // return "Invitation Extended to " + out_invitation.invitee + " for group " + out_invitation.currentGroup + ".";
 }
 
 function showHiddenFeatures(hiddenFeatures) {
@@ -118,26 +128,26 @@ function showHiddenFeatures(hiddenFeatures) {
     x[i].style.display = "none";
   }
   for (i = 0; i < hiddenFeatures.length; i++) {
-    console.log("showing " + hiddenFeatures[i]);
     document.getElementById(hiddenFeatures[i]).style.display = "block";
   }
 }
 
-window.addEventListener("load", function () {
+window.addEventListener("load", async function () {
   //EDIT THIS TO GET THE USER'S REPRESENTATIVE VECTOR
   const grid = document.getElementById("grid");
 
   // Save user_id to local storage
   const user_id = "2";
-  var account = {userId: user_id}
+  var account = { userId: user_id };
   account = btoa(JSON.stringify(account));
-  localStorage.setItem('_account', account);
-  
-  const ledGroups = callProfileGetApiForLedGroups(user_id);
+  localStorage.setItem("_account", account);
+  callProfilePostApi(user_id);
+
   // send the message to API
   var response = callMatchesPostApi(user_id);
   console.log(response);
   var compats = response.data.compatibleUsers;
+  var ledGroups = JSON.parse(atob(localStorage.getItem("_ledGroups")));
   if (compats && compats.length > 1) {
     //console.log('received ' + (compats.length - 1) + ' matches');
     var displaySet = new Set();
@@ -155,7 +165,18 @@ window.addEventListener("load", function () {
         // Add button to grid-item
         var button = document.createElement("button");
         button.setAttribute("class", "extend-button");
-        button.setAttribute("onclick", "showPrompt("+ compats[i].userId + "," + "\"" + compats[i].userName + "\"" + "," + JSON.stringify(ledGroups) + ")");
+        button.setAttribute(
+          "onclick",
+          "showPrompt(" +
+            compats[i].userId +
+            "," +
+            '"' +
+            compats[i].userName +
+            '"' +
+            "," +
+            JSON.stringify(ledGroups) +
+            ")"
+        );
         button.innerHTML = "Extend Invitation";
 
         // Display text in grid-item
@@ -173,7 +194,6 @@ window.addEventListener("load", function () {
             hiddenFeatures.push(feature.id);
           }
           item.appendChild(feature);
-          console.log("hidden features : " + JSON.stringify(hiddenFeatures));
           item.setAttribute("onclick", "showHiddenFeatures(" + JSON.stringify(hiddenFeatures) + ")");
 
           if (j == compats[i].userFeatures.length - 1) {

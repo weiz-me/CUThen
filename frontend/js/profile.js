@@ -1,6 +1,6 @@
 //UNCOMMENT RELEVANT LINES WHEN API IS READY
 
-//var sdk = apigClientFactory.newClient({});
+var sdk = apigClientFactory.newClient({});
 
 function callProfileGetApi(user_id) {
   // Should return an object containing user groups, name, features, and pending invites

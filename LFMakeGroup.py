@@ -89,7 +89,11 @@ def lambda_handler(event, context):
 
     master_user_id = input_data["groupLeader"]
     guest_user_id = input_data["groupLeader"]
-    # opensearch_client = opensearch_init()
+    opensearch_client = opensearch_init()
+
+    # generate group_id
+    rm_document = {"group_id": 2, "max":1}
+    rm_res = opensearch_client.index(index=INDEX0, id = 1, body=rm_document, refresh=True)
 
 
     print("1. getting groupid and update")
@@ -113,6 +117,7 @@ def lambda_handler(event, context):
     if master_user_id not in results1:
         ins_by_index(INDEX1,user_document,master_user_id)
 
+    
     result = search_by_index(INDEX1,"user_id",master_user_id)
     check_group_id=result[0]['group_id']
     print(f"\tAfter user -Group id: {check_group_id}")

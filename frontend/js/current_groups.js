@@ -1,6 +1,6 @@
 //UNCOMMENT RELEVANT LINES WHEN API IS READY
 
-//var sdk = apigClientFactory.newClient({});
+var sdk = apigClientFactory.newClient({});
 
 const groups = [
   {
@@ -106,26 +106,21 @@ function callProfileGetApiForGroupsAndInvites(user_id) {
 
 function callGroupDeleteApi(user_id, group_leader_id, group_id) {
   if (user_id == group_leader_id) {
-    // return sdk.groupDelete({ GroupId: group_id });
-    console.log("Group Deleted");
-    return "Group Deleted";
+    params = {};
+    body = { GroupId: group_id };
+    additionalParams = {};
+    return sdk.groupDelete(params, body, additionalParams);
   }
   console.log("You cannot delete this group because you are not the group leader");
   return "You cannot delete this group because you are not the group leader";
 }
 
 function callGroupPostApi(user_id, group_members) {
-  if (user_id === group_leader_id) {
-    for (let i = 0; i < group_members.length; i++) {
-      out_invitation = { invitee: group_members[i], currentGroup: group_id };
-      callExtendInvitationPostApi(out_invitation);
-    }
-    // return sdk.groupPost({ groupLeader: user_id, groupMembers: group_members });
-    console.log("Group Created");
-    return "Group Created";
-  }
-  console.log("You cannot create this group because you are not the group leader");
-  return "You cannot edit this group because you are not the group leader";
+  params = {};
+  body = { groupLeader: user_id, groupMembers: group_members };
+  additionalParams = {};
+  alert("Group created. You can now invite new members!");
+  return sdk.groupPost(params, body, additionalParams);
 }
 
 function callRespondToInvitationPostApi(invitationResponse) {
@@ -155,6 +150,40 @@ function openInviteTab(tabName) {
   document.getElementById(tabName).style.display = "block";
 }
 
+function openChatWindow(groupId) {
+  var chatWindow = document.getElementById("chatWindow");
+  var chatMain = document.getElementById("chatMain");
+  // delete all children of chatMain
+  while (chatMain.firstChild) {
+    chatMain.removeChild(chatMain.firstChild);
+  }
+
+  if (chatWindow.style.display === "none") {
+    chatWindow.style.display = "block";
+  }
+  var title = document.getElementById("chatTitle");
+  title.innerHTML = "Group " + groupId + " Chat";
+}
+
+function speak(name, side, text) {
+  const chat = document.getElementById("chatMain");
+  const msg = `
+      <div class="msg ${side}-msg">
+  
+        <div class="msg-bubble">
+          <div class="msg-info">
+            <div class="msg-info-name">${name}</div>
+          </div>
+  
+          <div class="msg-text">${text}</div>
+        </div>
+      </div>
+    `;
+
+  chat.insertAdjacentHTML("beforeend", msg);
+  chat.scrollTop += 500;
+}
+
 window.addEventListener("load", function () {
   const maxWidth = 50;
   const maxHeight = 50;
@@ -162,7 +191,7 @@ window.addEventListener("load", function () {
   const invitesDivOrig = $("#invites");
   const colors = ["#69B3E7", "#ddd"];
 
-  var account = localStorage.getItem('_account');
+  var account = localStorage.getItem("_account");
   account = atob(account);
   account = JSON.parse(account);
 
@@ -172,6 +201,7 @@ window.addEventListener("load", function () {
   var groups = groupsAndInvites[0];
   var invites = groupsAndInvites[1];
   var index = 0;
+
   groups.forEach((group) => {
     var groupId = group.groupId;
     var groupLeader = group.groupLeader;
@@ -204,6 +234,18 @@ window.addEventListener("load", function () {
     }
     groupDetails.style.display = "none";
 
+    var chatButton = document.createElement("button");
+    chatButton.setAttribute("class", "chatButton");
+    chatButton.innerHTML = "Chat";
+    chatButton.style = "background:" + colors[(index + 1) % 2];
+    chatButton.style.padding = "10px";
+    chatButton.style.fontSize = "15px";
+    chatButton.style.color = colors[index % 2];
+
+    chatButton.setAttribute("onclick", "openChatWindow(parentElement.getAttribute('data-groupId'))");
+
+    groupDetails.appendChild(chatButton);
+
     var deleteButton = document.createElement("button");
     deleteButton.setAttribute("class", "deleteButton");
     deleteButton.innerHTML = "Delete Group";
@@ -214,7 +256,9 @@ window.addEventListener("load", function () {
 
     deleteButton.setAttribute(
       "onclick",
-      "callGroupDeleteApi(" + user_id + ", parentElement.getAttribute('data-groupLeaderId'), parentElement.getAttribute('data-groupId'))"
+      "callGroupDeleteApi(" +
+        user_id +
+        ", parentElement.getAttribute('data-groupLeaderId'), parentElement.getAttribute('data-groupId'))"
     );
     groupDetails.appendChild(deleteButton);
 
@@ -287,4 +331,20 @@ window.addEventListener("load", function () {
     invitesDivOrig.append(inviteDetails);
     index++;
   });
+
+  // Add chat functionality
+  var chatInput = document.getElementById("chatInput");
+  var chatText = document.getElementById("chatText");
+  chatInput.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const msgText = chatText.value;
+    console.log("msgText: " + msgText);
+    if (!msgText) return;
+    speak("Me", "right", msgText);
+    chatText.value = "";
+  });
+
+  // Add make group functionality
+  var makeGroupButton = document.getElementById("makeGroupButton");
+  makeGroupButton.setAttribute("onclick", "callGroupPostApi(" + user_id + ", [" + user_id + "])");
 });
