@@ -31,7 +31,7 @@ def lambda_handler(event, context):
     # }
 
     orginal = lookup_data({'user_id': user_data["currentUser"]}, table="user_table")
-    update_item_list({'user_id':user_data["currentUser"]},user_data["newFeatures"],table="user_table")
+    update_item_list({'user_id':{"N":user_data["currentUser"]}},user_data["newFeatures"],table="user_table")
     updated_Data = lookup_data({'user_id': user_data["currentUser"]}, table="user_table")
 
     response = {"message":"success","input": user_data , "updated_Data":updated_Data}
