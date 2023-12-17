@@ -54,6 +54,7 @@ def query(client, index, field, term):
     print(res)
 
     hits = res['hits']['hits']
+    print(f"hits: {hits}")
     return hits[0]['_source']
 
 def get_user(userId):
@@ -100,6 +101,8 @@ def lambda_handler(event, context):
     groups = []
     invs = []
     for gid in user_to_group['group_id']:
+        print(f"gid: {gid}")
+        print(f"group: {get_group(os_client, gid)}")
         groups.append(get_group(os_client, gid))
     
     for iid in user_to_inv['pending_inv_ids']:
