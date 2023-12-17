@@ -93,7 +93,9 @@ def lambda_handler(event, context):
 
     # generate group_id
     rm_document = {"type": "group_id", "max":1}
-    rm_res = opensearch_client.index(index=INDEX0, id = 1, body=rm_document, refresh=True)
+    result = search_by_index(INDEX0,"type","group_id")
+    if len(result) == 0:
+        rm_res = opensearch_client.index(index=INDEX0, id = 1, body=rm_document, refresh=True)
 
 
     print("1. getting groupid and update")
