@@ -81,7 +81,7 @@ def get_group(client, groupId):
 def lambda_handler(event, context):
     print(f"Event: {event}")
     userId = event['body']
-    currentUser = get_user(str(userId))
+    currentUser = get_user(int(userId))
     print(f"Current user: {currentUser}")
     ret = {}
 
