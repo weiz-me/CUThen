@@ -100,8 +100,7 @@ def get_group(groupId):
 
 def lambda_handler(event, context):
     print(event)
-    userId = json.loads(event)
-    currentUser = get_user(int(userId['userId']))
+    currentUser = get_user(int(event['userId']))
 
     all_users = scan_data(table='user_table')
 
