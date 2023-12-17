@@ -138,12 +138,11 @@ function callGroupPostApi(user_id, group_members) {
 }
 
 function callRespondToInvitationPostApi(invitationResponse) {
-  // return sdk.respondToInvitationPost({ response: invitationResponse });
-  var response = invitationResponse.response;
-  var inviteeId = invitationResponse.inviteeId;
-  var invitingGroupId = invitationResponse.invitingGroupId;
-  console.log("Responded " + response + " to Invitation");
-  return "Responded " + response + " to Invitation";
+    console.log(invitationResponse);
+    params = {};
+    body = invitationResponse;
+    additionalParams = {};
+    return sdk.respondToInvitationPost(params, body, additionalParams);
 }
 
 function openGroupTab(tabName) {
@@ -297,68 +296,71 @@ window.addEventListener("load", function () {
   });
   invites.forEach((invite) => {
     var invitingGroup = invite.invitingGroup;
-    var invitee = invite.invitee;
-    console.log(invitingGroup + ": " + invitee);
+    if (!(Object.keys(invitingGroup).length === 0 && invitingGroup.constructor === Object)) {
+      console.log("INVITE: " + JSON.stringify(invite));
+      var invitee = invite.invitee;
+      console.log(invitingGroup + ": " + invitee);
 
-    var inviteDiv = document.createElement("div");
-    inviteDiv.setAttribute("class", "invite");
-    inviteDiv.innerHTML = "Invite from " + invitingGroup.groupLeader.userName;
-    inviteDiv.setAttribute("onclick", "openInviteTab('invite" + invitingGroup.groupId + "Details')");
-    inviteDiv.style = "background:" + colors[index % 2];
-    inviteDiv.style.padding = "10px";
-    inviteDiv.style.fontSize = "20px";
-    inviteDiv.style.color = colors[(index + 1) % 2];
+      var inviteDiv = document.createElement("div");
+      inviteDiv.setAttribute("class", "invite");
+      inviteDiv.innerHTML = "Invite from " + invitingGroup.groupLeader.userName;
+      inviteDiv.setAttribute("onclick", "openInviteTab('invite" + invitingGroup.groupId + "Details')");
+      inviteDiv.style = "background:" + colors[index % 2];
+      inviteDiv.style.padding = "10px";
+      inviteDiv.style.fontSize = "20px";
+      inviteDiv.style.color = colors[(index + 1) % 2];
 
-    // Tab that is opened when inviteDiv is clicked
-    var inviteDetails = document.createElement("div");
-    inviteDetails.setAttribute("class", "inviteDetails");
-    inviteDetails.setAttribute("id", "invite" + invitingGroup.groupId + "Details");
-    inviteDetails.setAttribute("data-invitingGroupId", invitingGroup.groupId);
-    inviteDetails.setAttribute("data-inviteeId", invitee.userId);
-    inviteDetails.style.display = "none";
-    inviteDetails.innerHTML =
-      "Inviting Group Leader: " + invitingGroup.groupLeader.userName + "<br>Inviting Group Members: <br>";
-    for (let i = 0; i < invitingGroup.groupMembers.length; i++) {
-      inviteDetails.innerHTML += invitingGroup.groupMembers[i].userName + "<br>";
-      inviteDetails.style = "background:" + colors[i % 2];
-      inviteDetails.style.padding = "10px";
-      inviteDetails.style.fontSize = "15px";
-      inviteDetails.style.color = colors[(i + 1) % 2];
+      // Tab that is opened when inviteDiv is clicked
+      var inviteDetails = document.createElement("div");
+      inviteDetails.setAttribute("class", "inviteDetails");
+      inviteDetails.setAttribute("id", "invite" + invitingGroup.groupId + "Details");
+      inviteDetails.setAttribute("data-invitingGroupId", invitingGroup.groupId);
+      inviteDetails.setAttribute("data-inviteeId", invitee.userId);
+      inviteDetails.style.display = "none";
+      inviteDetails.innerHTML =
+        "Inviting Group Leader: " + invitingGroup.groupLeader.userName + "<br>Inviting Group Members: <br>";
+      for (let i = 0; i < invitingGroup.groupMembers.length; i++) {
+        inviteDetails.innerHTML += invitingGroup.groupMembers[i].userName + "<br>";
+        inviteDetails.style = "background:" + colors[i % 2];
+        inviteDetails.style.padding = "10px";
+        inviteDetails.style.fontSize = "15px";
+        inviteDetails.style.color = colors[(i + 1) % 2];
+      }
+      inviteDetails.style.display = "none";
+
+      var acceptButton = document.createElement("button");
+      acceptButton.setAttribute("class", "acceptButton");
+      acceptButton.innerHTML = "Accept Invitation";
+      acceptButton.style = "background:" + colors[(index + 1) % 2];
+      acceptButton.style.padding = "10px";
+      acceptButton.style.fontSize = "15px";
+      acceptButton.style.color = colors[index % 2];
+
+      acceptButton.setAttribute(
+        "onclick",
+        "callRespondToInvitationPostApi({accept: 1, user_id: parentElement.getAttribute('data-inviteeId'), accepted_inv_id: parentElement.getAttribute('data-invitingGroupId')})"
+      );
+
+      var rejectButton = document.createElement("button");
+      rejectButton.setAttribute("class", "rejectButton");
+      rejectButton.innerHTML = "Reject Invitation";
+      rejectButton.style = "background:" + colors[(index + 1) % 2];
+      rejectButton.style.padding = "10px";
+      rejectButton.style.fontSize = "15px";
+      rejectButton.style.color = colors[index % 2];
+
+      rejectButton.setAttribute(
+        "onclick",
+        "callRespondToInvitationPostApi({accept: 0, user_id: parentElement.getAttribute('data-inviteeId'), accepted_inv_id: parentElement.getAttribute('data-invitingGroupId')})"
+      );
+
+      inviteDetails.appendChild(acceptButton);
+      inviteDetails.appendChild(rejectButton);
+
+      invitesDivOrig.append(inviteDiv);
+      invitesDivOrig.append(inviteDetails);
+      index++;
     }
-    inviteDetails.style.display = "none";
-
-    var acceptButton = document.createElement("button");
-    acceptButton.setAttribute("class", "acceptButton");
-    acceptButton.innerHTML = "Accept Invitation";
-    acceptButton.style = "background:" + colors[(index + 1) % 2];
-    acceptButton.style.padding = "10px";
-    acceptButton.style.fontSize = "15px";
-    acceptButton.style.color = colors[index % 2];
-
-    acceptButton.setAttribute(
-      "onclick",
-      "callRespondToInvitationPostApi({response: 'yes', inviteeId: parentElement.getAttribute('data-inviteeId'), invitingGroupId: parentElement.getAttribute('data-invitingGroupId')})"
-    );
-
-    var rejectButton = document.createElement("button");
-    rejectButton.setAttribute("class", "rejectButton");
-    rejectButton.innerHTML = "Reject Invitation";
-    rejectButton.style = "background:" + colors[(index + 1) % 2];
-    rejectButton.style.padding = "10px";
-    rejectButton.style.fontSize = "15px";
-    rejectButton.style.color = colors[index % 2];
-
-    rejectButton.setAttribute(
-      "onclick",
-      "callRespondToInvitationPostApi({response: 'no', inviteeId: parentElement.getAttribute('data-inviteeId'), invitingGroupId: parentElement.getAttribute('data-invitingGroupId')})"
-    );
-
-    inviteDetails.appendChild(acceptButton);
-    inviteDetails.appendChild(rejectButton);
-
-    invitesDivOrig.append(inviteDiv);
-    invitesDivOrig.append(inviteDetails);
-    index++;
   });
 
   // Add chat functionality
