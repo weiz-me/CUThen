@@ -98,6 +98,7 @@ def lambda_handler(event, context):
 
     print("1. getting groupid and update")
     result = search_by_index(INDEX0,"type","group_id")
+    print(f"\t{result = }")
     if len(result) == 0:
         group_id = 1
     else:
