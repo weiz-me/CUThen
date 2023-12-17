@@ -92,7 +92,7 @@ def get_group(groupId):
     gleader = get_user({"user_id": gobj['leader_id']})
     gmember = []
     for mid in gobj['user_id']:
-        gmember.append(get_user({"user_id": mid))
+        gmember.append(get_user({"user_id": mid}))
     group['groupId'] = int(groupId)
     group['groupLeader'] = gleader
     group['groupMembers'] = gmember
