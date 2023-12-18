@@ -83,8 +83,8 @@ def lambda_handler(event, context):
 
     user_data = event['body']
     user_data = json.loads(user_data)
-    user_id = user_data["user_id"]
-    accepted_inv_id = user_data["accepted_inv_id"]
+    user_id = int(user_data["user_id"])
+    accepted_inv_id = int(user_data["accepted_inv_id"])
     accept = user_data["accept"]
     
     print("0. Opening Opensearch client")
