@@ -37,18 +37,25 @@ def lambda_handler(event, context):
     #     "phone_number": "none",
     #     "zipcode": "12345"
     # }
-
-    orginal = lookup_data({'user_id': user_data["currentUser"]}, table="user_table")
-    if orginal == None:
-        new_id = create_user(user_data["newFeatures"], table="user_table")
-        print(f"new_id: {new_id}")
-        updated_Data = lookup_data({'user_id': new_id}, table="user_table")
-        response = {"message":"insert success","input": user_data , "updated_Data":updated_Data}
-        resp = {
-                'statusCode': 200,
-                'body': json.dumps(response)
-        }
-        return resp
+    if 'is_login' in user_data:
+        orginal = lookup_data({'email': user_data["newFeatures"]['email']}, table="user_table")
+        if orginal == None:
+            new_id = create_user(user_data["newFeatures"], table="user_table")
+            print(f"new_id: {new_id}")
+            updated_Data = lookup_data({'user_id': new_id}, table="user_table")
+            response = {"message": "new user created","input": user_data , "updated_Data":updated_Data}
+            resp = {
+                    'statusCode': 200,
+                    'body': json.dumps(response)
+            }
+            return resp
+        else:
+            response = {"message": "user exists", "input": user_data , "updated_Data":orginal}
+            resp = {
+                    'statusCode': 200,
+                    'body': json.dumps(response)
+            }
+            return resp
     else:
         update_item_list({'user_id': int(user_data["currentUser"])},user_data["newFeatures"],table="user_table")
         updated_Data = lookup_data({'user_id': user_data["currentUser"]}, table="user_table")

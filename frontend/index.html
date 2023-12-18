@@ -43,7 +43,7 @@
       var sdk = apigClientFactory.newClient({});
       async function callModifyProfilePostApi(user_id, user_vector) {
         params = {};
-        body = { currentUser: user_id, newFeatures: user_vector };
+        body = { currentUser: user_id, newFeatures: user_vector, is_login: true};
         additionalParams = {};
         response = await sdk.modifyProfilePost(params, body, additionalParams);
         return response;
