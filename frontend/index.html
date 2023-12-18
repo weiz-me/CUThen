@@ -68,7 +68,6 @@
           { email: email },
           { uni: "none" },
           { school: "none" },
-          { user_id: user_id },
           { zip_code: "none" },
           { last_name: last_name },
           { first_name: first_name },
@@ -77,8 +76,8 @@
           { major: "none" },
           { exam_schedule: "none" },
         ];
-        var response = callModifyProfilePostApi(user_id, new_features);
-        account.userId = response.user_id;
+        var response = callModifyProfilePostApi(0, new_features);
+        account.userId = response.updated_Data.user_id;
         console.log(JSON.stringify(account));
         account = btoa(JSON.stringify(account));
         localStorage.setItem("_account", account);

@@ -147,13 +147,9 @@ def put_item(features, db=None, table='6998Demo'):
 
     for feature_dict in features:
         feature_name, feature = list(feature_dict.items())[0]
-        item[feature_name] = {
-            'S': str(feature)
-        }
-    item['user_id'] = {
-        'N': str(max_id + 1)
-    }
+        item[feature_name] = str(feature)
+    item['user_id'] = max_id + 1
     print(f"item to be inserted into dynamodb: {item}")
 
-    response = table.put_item(TableName = table, Item = item)
+    response = table.put_item(Item = item)
     return max_id + 1
