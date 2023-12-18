@@ -45,7 +45,7 @@
         params = {};
         body = { currentUser: user_id, newFeatures: user_vector };
         additionalParams = {};
-        response = sdk.modifyProfilePost(params, body, additionalParams);
+        response = await sdk.modifyProfilePost(params, body, additionalParams);
         return response;
       }
       function decodeJwtResponse(jwtResponse) {
@@ -77,8 +77,9 @@
           { major: "none" },
           { exam_schedule: "none" },
         ];
-        callModifyProfilePostApi(user_id, new_features);
-
+        var response = callModifyProfilePostApi(user_id, new_features);
+        account.userId = response.user_id;
+        console.log(JSON.stringify(account));
         account = btoa(JSON.stringify(account));
         localStorage.setItem("_account", account);
         console.log("ID: " + responsePayload.sub);
