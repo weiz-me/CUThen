@@ -43,7 +43,7 @@
       var sdk = apigClientFactory.newClient({});
       async function callModifyProfilePostApi(user_id, user_vector) {
         params = {};
-        body = { currentUser: user_id, newFeatures: user_vector, is_login: true};
+        body = { currentUser: user_id, newFeatures: user_vector, is_login: true };
         additionalParams = {};
         response = await sdk.modifyProfilePost(params, body, additionalParams);
         return response;
@@ -76,18 +76,20 @@
           { major: "none" },
           { exam_schedule: "none" },
         ];
-        var response = callModifyProfilePostApi(0, new_features);
-        account.userId = response.updated_Data.user_id;
-        console.log(JSON.stringify(account));
-        account = btoa(JSON.stringify(account));
-        localStorage.setItem("_account", account);
-        console.log("ID: " + responsePayload.sub);
-        console.log("Full Name: " + responsePayload.name);
-        console.log("Given Name: " + responsePayload.given_name);
-        console.log("Family Name: " + responsePayload.family_name);
-        console.log("Image URL: " + responsePayload.picture);
-        console.log("Email: " + responsePayload.email);
-        window.location.href = "frontpage.html";
+        callModifyProfilePostApi(0, new_features).then((response) => {
+          console.log(JSON.stringify(response));
+          account.userId = response.data.updated_Data.user_id;
+          //console.log(JSON.stringify(account));
+          account = btoa(JSON.stringify(account));
+          localStorage.setItem("_account", account);
+          console.log("ID: " + responsePayload.sub);
+          console.log("Full Name: " + responsePayload.name);
+          console.log("Given Name: " + responsePayload.given_name);
+          console.log("Family Name: " + responsePayload.family_name);
+          console.log("Image URL: " + responsePayload.picture);
+          console.log("Email: " + responsePayload.email);
+          window.location.href = "frontpage.html";
+        });
       }
     </script>
   </body>

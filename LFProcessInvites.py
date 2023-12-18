@@ -115,7 +115,7 @@ def lambda_handler(event, context):
     print("\tremove it from pending_invitation:\n")
     print(f"\t\t{pending_inv_ids =}")
     print(f"\t\t{accepted_inv_id =}")
-    pending_inv_ids.remove(accepted_inv_id)
+    pending_inv_ids.remove(int(accepted_inv_id))
     document = {"user_id": user_id,"pending_inv_ids": pending_inv_ids}
     ins_by_index(INDEX3,document,user_id)
 
