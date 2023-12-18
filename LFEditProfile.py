@@ -39,12 +39,14 @@ def lambda_handler(event, context):
     #     "zipcode": "12345"
     # }
     if 'is_login' in user_data:
+        print("user is logging in")
         user_email = ''
         for feature_dict in user_data["newFeatures"]:
             feature_name, feature = list(feature_dict.items())[0]
             if feature_name == "email":
                 user_email = feature
                 break
+        print(f"querying users with the email {user_email}")
         orginal = query_data(attribute='email',key=user_email, table="user_table")
         if orginal == None:
             new_id = create_user(user_data["newFeatures"], table="user_table")
@@ -98,9 +100,10 @@ def query_data(attribute, key, db=None, table='6998Demo'):
         db = boto3.resource('dynamodb')
     table = db.Table(table)
     try:
-        response = table.query(KeyConditionExpression=Key(attribute).eq(key))
+        response = table.query(IndexName='email-index', KeyConditionExpression=Key(attribute).eq(key))
     except ClientError as e:
         print('Error', e.response['Error']['Message'])
+        return None
     else:
         # if user not in table
         if 'Items' not in response or response['Items'] == []:
