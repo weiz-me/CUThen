@@ -143,14 +143,23 @@ window.addEventListener("load", async function () {
   //account = btoa(JSON.stringify(account));
   //localStorage.setItem("_account", account);
 
-  const user_id = JSON.parse(atob(localStorage.getItem("_account"))).userId;
+  const account = JSON.parse(atob(localStorage.getItem("_account")));
+  const user_id = account.userId;
+
+  const features = JSON.parse(atob(localStorage.getItem("_userFeatures")));
+  console.log("Features: " + JSON.stringify(features));
+  // Get first name
+  for (let i = 0; i < features.length; i++) {
+    if (Object.keys(features[i]) == "first_name") {
+      console.log("FOUND");
+      var firstName = Object.values(features[i])[0];
+    }
+  }
+  account.firstName = firstName;
+  localStorage.setItem("_account", btoa(JSON.stringify(account)));
+
   console.log("THIS IS THE USER ID: " + user_id);
   callProfilePostApi(user_id);
-
-  const first_name = "Chengyu";
-  const account = { userId: user_id, firstName: first_name };
-  localStorage.setItem("_account", btoa(JSON.stringify(account)));
-  console.log("LOCAL STORAGE: " + localStorage.getItem("_account"));
 
   // send the message to API
   callMatchesPostApi(user_id);

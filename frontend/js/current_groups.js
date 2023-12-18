@@ -233,7 +233,8 @@ window.addEventListener("load", function () {
   account = JSON.parse(account);
 
   const user_id = account.userId;
-  const first_name = account.first_name;
+  const first_name = account.firstName;
+  console.log("FIRST NAME " + first_name);
   // callProfilePostApi(user_id);
 
   var features = localStorage.getItem("_userFeatures");
