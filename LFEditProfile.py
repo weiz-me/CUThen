@@ -49,6 +49,7 @@ def lambda_handler(event, context):
         print(f"querying users with the email {user_email}")
         orginal = query_data(attribute='email',key=user_email, table="user_table")
         if orginal == None:
+            print("user does not exist, creating a new one")
             new_id = create_user(user_data["newFeatures"], table="user_table")
             print(f"new_id: {new_id}")
             updated_Data = lookup_data({'user_id': new_id}, table="user_table")
@@ -60,6 +61,7 @@ def lambda_handler(event, context):
             }
             return resp
         else:
+            print("user exists")
             response = {"message": "user exists", "input": user_data , "updated_Data":orginal}
             resp = {
                     'statusCode': 200,
@@ -93,7 +95,7 @@ def lookup_data(key, db=None, table='6998Demo'):
         res = response['Item']
         res['user_id'] = int(res['user_id']) 
         print(f"{res =}")
-        return response['Item']
+        return res
     
 def query_data(attribute, key, db=None, table='6998Demo'):
     if not db:
@@ -108,7 +110,11 @@ def query_data(attribute, key, db=None, table='6998Demo'):
         # if user not in table
         if 'Items' not in response or response['Items'] == []:
             return None
-        return response['Items']
+        
+        res = response['Items'][0]
+        res['user_id'] = int(res['user_id']) 
+        print(f"{res =}")
+        return res
     
 def update_item_list(key, feature_dict_list, db=None, table='6998Demo'):
     if not db:
