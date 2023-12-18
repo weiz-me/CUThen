@@ -28,8 +28,10 @@ function callModifyProfilePostApi(user_id, user_vector) {
   params = {};
   body = { currentUser: user_id, newFeatures: user_vector };
   additionalParams = {};
-  response = sdk.modifyProfilePost(params, body, additionalParams)
-  return response;
+  sdk.modifyProfilePost(params, body, additionalParams).then((response) => {
+    callProfilePostApi(user_id);
+    return response;
+  });
 }
 
 window.addEventListener("load", function () {
@@ -47,7 +49,7 @@ window.addEventListener("load", function () {
   features = JSON.parse(features);
 
   const user_id = account.userId;
-  window.setInterval(callProfilePostApi(user_id), 8000);
+  window.setInterval(callProfilePostApi(user_id), 20000);
 
   console.log("THIS IS THE USER ID: " + user_id);
   features.forEach((feature) => {

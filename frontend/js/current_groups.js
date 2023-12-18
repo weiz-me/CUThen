@@ -36,6 +36,7 @@ function callGroupPutApi(user_id, group_leader_id, group_id) {
     additionalParams = {};
     alert("Group deleted. Please wait a few moments to see this update here.");
     response = sdk.groupPut(params, body, additionalParams);
+    callProfilePostApi(user_id);
     return response;
   }
   alert("You cannot delete this group because you are not the group leader");
@@ -49,6 +50,7 @@ function callGroupPostApi(user_id, group_members) {
   alert("Group created. You can now invite new members! Please wait a few moments to see this update here.");
 
   response = sdk.groupPost(params, body, additionalParams);
+  callProfilePostApi(user_id);
   return response;
 }
 
@@ -65,6 +67,7 @@ function callRespondToInvitationPostApi(invitationResponse) {
   } else {
     alert("You have rejected the invitation. Please wait a few moments to see this update here.");
   }
+  callProfilePostApi(user_id);
   return sdk.respondToInvitationPost(params, body, additionalParams);
 }
 
@@ -115,6 +118,7 @@ async function openChatWindow(groupId, user_id, first_name) {
   });
   var title = document.getElementById("chatTitle");
   title.innerHTML = "Group " + groupId + " Chat";
+  callProfilePostApi(user_id);
 }
 
 function speak(name, side, text) {
@@ -151,7 +155,7 @@ window.addEventListener("load", function () {
   const first_name = account.firstName;
   console.log("FIRST NAME " + first_name);
 
-  window.setInterval(callProfilePostApi(user_id), 8000);
+  window.setInterval(callProfilePostApi(user_id), 20000);
 
   var features = localStorage.getItem("_userFeatures");
   features = atob(features);

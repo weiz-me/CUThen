@@ -105,7 +105,7 @@ window.addEventListener("load", async function () {
   localStorage.setItem("_account", btoa(JSON.stringify(account)));
 
   console.log("THIS IS THE USER ID: " + user_id);
-  window.setInterval(callProfilePostApi(user_id), 8000);
+  window.setInterval(callProfilePostApi(user_id), 20000);
 
   // send the message to API
   callMatchesPostApi(user_id);
