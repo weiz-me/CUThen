@@ -38,7 +38,13 @@ def lambda_handler(event, context):
     #     "zipcode": "12345"
     # }
     if 'is_login' in user_data:
-        orginal = lookup_data({'email': user_data["newFeatures"]['email']}, table="user_table")
+        user_email = ''
+        for feature_dict in user_data["newFeatures"]:
+            feature_name, feature = list(feature_dict.items())[0]
+            if feature_name == "email":
+                user_email = feature
+                break
+        orginal = lookup_data({'email': user_email}, table="user_table")
         if orginal == None:
             new_id = create_user(user_data["newFeatures"], table="user_table")
             print(f"new_id: {new_id}")
