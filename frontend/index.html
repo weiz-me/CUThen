@@ -3,23 +3,41 @@
     <meta charset="utf-8" />
     <title>Google Sign In</title>
     <meta name="google-signin-scope" content="profile email" />
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
-
-    <meta
-      name="google-signin-client_id"
-      content="579017199170-p4pglbcjkicp69hpmfo97hj170ovbbui.apps.googleusercontent.com"
-    />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
-    
-    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    <div id="g_id_onload"
+     data-client_id="928718786111-2uk329qmgcok54e41on6pvptr0qsd2on.apps.googleusercontent.com"
+     data-context="signin"
+     data-ux_mode="popup"
+     data-callback="handleCredentialResponse"
+     data-auto_prompt="false">
+    </div>
+
+    <div class="g_id_signin"
+        data-type="standard"
+        data-shape="rectangular"
+        data-theme="filled_blue"
+        data-text="signin_with"
+        data-size="large"
+        data-logo_alignment="left">
+    </div>
     <script>
-      function onSignIn(googleUser) {
-        var profile = googleUser.getBasicProfile();
-        console.log("ID: " + profile.getId()); // Do not send to your backend! Use an ID token instead.
-        console.log("Name: " + profile.getName());
-        console.log("Image URL: " + profile.getImageUrl());
-        console.log("Email: " + profile.getEmail()); // This is null if the 'email' scope is not present.
+      function decodeJwtResponse(jwtResponse) {
+        const jwtResponseParts = jwtResponse.split('.');
+        const encodedPayload = jwtResponseParts[1];
+        const rawPayload = atob(encodedPayload);
+        const decodedPayload = JSON.parse(rawPayload);
+        return decodedPayload;
+      }
+      function handleCredentialResponse(response) {
+        const responsePayload = decodeJwtResponse(response.credential);
+        console.log("ID: " + responsePayload.sub);
+        console.log('Full Name: ' + responsePayload.name);
+        console.log('Given Name: ' + responsePayload.given_name);
+        console.log('Family Name: ' + responsePayload.family_name);
+        console.log("Image URL: " + responsePayload.picture);
+        console.log("Email: " + responsePayload.email);
       }
     </script>
   </body>
