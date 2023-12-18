@@ -31,6 +31,8 @@ def lambda_handler(event, context):
     # }
 
     orginal = lookup_data({'user_id': user_data["currentUser"]}, table="user_table")
+    if orginal == None:
+        put_item(user_data["currentUser"], user_data["newFeatures"], table="user_table")
     update_item_list({'user_id': int(user_data["currentUser"])},user_data["newFeatures"],table="user_table")
     updated_Data = lookup_data({'user_id': user_data["currentUser"]}, table="user_table")
 
@@ -51,6 +53,9 @@ def lookup_data(key, db=None, table='6998Demo'):
     except ClientError as e:
         print('Error', e.response['Error']['Message'])
     else:
+        # if user not in table
+        if 'Item' not in response:
+            return None
         res = response['Item']
         res['user_id'] = int(res['user_id']) 
         print(f"{res =}")
@@ -82,3 +87,20 @@ def update_item_list(key, feature_dict_list, db=None, table='6998Demo'):
 
     return
 
+def put_item(id, features, db=None, table='6998Demo'):
+    if not db:
+        db = boto3.resource('dynamodb')
+    table = db.Table(table)
+
+    item = {}
+
+    for feature_dict in features:
+        feature_name, feature = list(feature_dict.items())[0]
+        item[feature_name] = {
+            'S': feature
+        }
+    item['user_id'] = {
+        'N': str(id)
+    }
+    
+    response = table.put_item(TableName = table, Item = item)
