@@ -3,6 +3,7 @@ import boto3
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 from botocore.exceptions import ClientError
+from boto3.dynamodb.conditions import Key
 from datetime import datetime, timedelta
 import json
 
@@ -44,7 +45,7 @@ def lambda_handler(event, context):
             if feature_name == "email":
                 user_email = feature
                 break
-        orginal = lookup_data({'email': user_email}, table="user_table")
+        orginal = query_data(attribute='email',key=user_email, table="user_table")
         if orginal == None:
             new_id = create_user(user_data["newFeatures"], table="user_table")
             print(f"new_id: {new_id}")
@@ -91,7 +92,21 @@ def lookup_data(key, db=None, table='6998Demo'):
         res['user_id'] = int(res['user_id']) 
         print(f"{res =}")
         return response['Item']
-        
+    
+def query_data(attribute, key, db=None, table='6998Demo'):
+    if not db:
+        db = boto3.resource('dynamodb')
+    table = db.Table(table)
+    try:
+        response = table.query(KeyConditionExpression=Key(attribute).eq(key))
+    except ClientError as e:
+        print('Error', e.response['Error']['Message'])
+    else:
+        # if user not in table
+        if 'Items' not in response or response['Items'] == []:
+            return None
+        return response['Items']
+    
 def update_item_list(key, feature_dict_list, db=None, table='6998Demo'):
     if not db:
         db = boto3.resource('dynamodb')
