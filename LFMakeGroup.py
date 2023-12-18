@@ -167,6 +167,7 @@ def lambda_handler(event, context):
     response = {"message":f"Group {group_id} created", "input":input_data, "new_data":updated_data}
     return {
         'statusCode': 200,
+        "headers": {"Access-Control-Allow-Origin": "*"},
         'body': json.dumps(response)
     }
 

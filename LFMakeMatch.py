@@ -112,8 +112,8 @@ def lambda_handler(event, context):
     for user in other_users:
         user['user_id'] = str(user['user_id']) # Decimals are not JSON serializable so convert to string
 
-    # FOR TESTING ONLY
     return {
         'statusCode': 200,
+        "headers": {"Access-Control-Allow-Origin": "*"},
         'body': json.dumps(other_users)
     }

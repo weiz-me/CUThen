@@ -143,6 +143,7 @@ def lambda_handler(event, context):
     response = {"message": "group removed","input":input_data,"deleted_data":deleted_data}
     return {
         'statusCode': 200,
+        "headers": {"Access-Control-Allow-Origin": "*"},
         'body': json.dumps(response)
     }
 

@@ -128,6 +128,7 @@ def lambda_handler(event, context):
     response = {"input":input_data, "orginal_data":orginal_data, "updated_data":updated_data}
     return {
         'statusCode': 200,
+        "headers": {"Access-Control-Allow-Origin": "*"},
         'body': json.dumps(response)
     }
 

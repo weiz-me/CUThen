@@ -52,6 +52,7 @@ def lambda_handler(event, context):
             response = {"message": "new user created","input": user_data , "updated_Data":updated_Data}
             resp = {
                     'statusCode': 200,
+                    "headers": {"Access-Control-Allow-Origin": "*"},
                     'body': json.dumps(response)
             }
             return resp
@@ -59,6 +60,7 @@ def lambda_handler(event, context):
             response = {"message": "user exists", "input": user_data , "updated_Data":orginal}
             resp = {
                     'statusCode': 200,
+                    "headers": {"Access-Control-Allow-Origin": "*"},
                     'body': json.dumps(response)
             }
             return resp
@@ -68,6 +70,7 @@ def lambda_handler(event, context):
         response = {"message":"update success","input": user_data , "updated_Data":updated_Data}
         resp = {
                 'statusCode': 200,
+                "headers": {"Access-Control-Allow-Origin": "*"},
                 'body': json.dumps(response)
         }
         return resp
