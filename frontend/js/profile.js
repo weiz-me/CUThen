@@ -37,7 +37,7 @@ window.addEventListener("load", function () {
   const editButton = $("#editButton");
   const maxWidth = 50;
   const maxHeight = 50;
-  const unchangeableFeatures = ["user_id", "uni"]
+  const unchangeableFeatures = ["user_id"]
 
   var account = localStorage.getItem("_account");
   account = atob(account);

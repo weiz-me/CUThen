@@ -159,7 +159,7 @@ window.addEventListener("load", async function () {
   var compats = JSON.parse(response.data.body);
   console.log("Compats: " + JSON.stringify(compats));
   var ledGroups = JSON.parse(atob(localStorage.getItem("_ledGroups")));
-  if (compats && compats.length > 1) {
+  if (compats && compats.length > 0) {
     var displaySet = new Set();
     for (let i = 0; i < compats.length; i++) {
       console.log("ID: " + compats[i].user_id);
@@ -222,11 +222,6 @@ window.addEventListener("load", async function () {
       }
     }
   } else {
-    var item = document.createElement("div");
-    item.setAttribute("grid-column", ((i - 1) % 3) + " / span 1");
-    item.setAttribute("grid-row", Math.floor((i - 1) / 3) + " / span 1");
-    item.setAttribute("class", "grid-item");
-    item.innerHTML = "Empty";
-    grid.appendChild(item);
+    console.log("No matches found.");
   }
 });

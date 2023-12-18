@@ -194,7 +194,8 @@ async function openChatWindow(groupId, user_id, first_name) {
         side = "right";
         sender = "Me";
       }
-      speak(sender, "left", message);
+      console.log("TESTING: " + side + " " + sender);
+      speak(sender, side, message);
     }
   });
   var title = document.getElementById("chatTitle");
