@@ -144,10 +144,12 @@ window.addEventListener("load", async function () {
   const grid = document.getElementById("grid");
 
   // Save user_id to local storage
-  const user_id = "2";
-  var account = { userId: user_id };
-  account = btoa(JSON.stringify(account));
-  localStorage.setItem("_account", account);
+  //var account = { userId: user_id };
+  //account = btoa(JSON.stringify(account));
+  //localStorage.setItem("_account", account);
+
+  const user_id = JSON.parse(atob(localStorage.getItem("_account"))).userId;
+  console.log("THIS IS THE USER ID: " + user_id);
   callProfilePostApi(user_id);
 
   // send the message to API

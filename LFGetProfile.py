@@ -34,6 +34,7 @@ def lookup_data(key, db=None, table='user_table'):
         print('Error', e.response['Error']['Message'])
         return False
     else:
+        print(f"RESPONSE: {response}")
         ret = response['Item']
         ret['user_id'] = int(ret['user_id'])
         return ret

@@ -4,27 +4,52 @@
     <title>Google Sign In</title>
     <meta name="google-signin-scope" content="profile email" />
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="./js/sdk/lib/axios/dist/axios.standalone.js"></script>
+    <script src="./js/sdk/lib/CryptoJS/rollups/hmac-sha256.js"></script>
+    <script src="./js/sdk/lib/CryptoJS/rollups/sha256.js"></script>
+    <script src="./js/sdk/lib/CryptoJS/components/hmac.js"></script>
+    <script src="./js/sdk/lib/CryptoJS/components/enc-base64.js"></script>
+    <script src="./js/sdk/lib/url-template/url-template.js"></script>
+    <script src="./js/sdk/lib/apiGatewayCore/sigV4Client.js"></script>
+    <script src="./js/sdk/lib/apiGatewayCore/apiGatewayClient.js"></script>
+    <script src="./js/sdk/lib/apiGatewayCore/simpleHttpClient.js"></script>
+    <script src="./js/sdk/lib/apiGatewayCore/utils.js"></script>
+
+    <script src="./js/sdk/apigClient.js"></script>
+
+    <script src="./js/aws-sdk.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   </head>
   <body>
-    <div id="g_id_onload"
-     data-client_id="928718786111-2uk329qmgcok54e41on6pvptr0qsd2on.apps.googleusercontent.com"
-     data-context="signin"
-     data-ux_mode="popup"
-     data-callback="handleCredentialResponse"
-     data-auto_prompt="false">
-    </div>
+    <div
+      id="g_id_onload"
+      data-client_id="928718786111-2uk329qmgcok54e41on6pvptr0qsd2on.apps.googleusercontent.com"
+      data-context="signin"
+      data-ux_mode="popup"
+      data-callback="handleCredentialResponse"
+      data-auto_prompt="false"
+    ></div>
 
-    <div class="g_id_signin"
-        data-type="standard"
-        data-shape="rectangular"
-        data-theme="filled_blue"
-        data-text="signin_with"
-        data-size="large"
-        data-logo_alignment="left">
-    </div>
+    <div
+      class="g_id_signin"
+      data-type="standard"
+      data-shape="rectangular"
+      data-theme="filled_blue"
+      data-text="signin_with"
+      data-size="large"
+      data-logo_alignment="left"
+    ></div>
     <script>
+      var sdk = apigClientFactory.newClient({});
+      async function callModifyProfilePostApi(user_id, user_vector) {
+        params = {};
+        body = { currentUser: user_id, newFeatures: user_vector };
+        additionalParams = {};
+        response = sdk.modifyProfilePost(params, body, additionalParams);
+        return response;
+      }
       function decodeJwtResponse(jwtResponse) {
-        const jwtResponseParts = jwtResponse.split('.');
+        const jwtResponseParts = jwtResponse.split(".");
         const encodedPayload = jwtResponseParts[1];
         const rawPayload = atob(encodedPayload);
         const decodedPayload = JSON.parse(rawPayload);
@@ -32,12 +57,37 @@
       }
       function handleCredentialResponse(response) {
         const responsePayload = decodeJwtResponse(response.credential);
+        const user_id = responsePayload.sub;
+        const first_name = responsePayload.given_name;
+        const last_name = responsePayload.family_name;
+        const email = responsePayload.email;
+        var account = { userId: user_id, firstName: first_name, lastName: last_name, email: email };
+        const new_features = [
+          { class_schedule: "none" },
+          { hobbies: "none" },
+          { email: email },
+          { uni: "none" },
+          { school: "none" },
+          { user_id: user_id },
+          { zip_code: "none" },
+          { last_name: last_name },
+          { first_name: first_name },
+          { academic_interests: "none" },
+          { phone_number: "none" },
+          { major: "none" },
+          { exam_schedule: "none" },
+        ];
+        callModifyProfilePostApi(user_id, new_features);
+
+        account = btoa(JSON.stringify(account));
+        localStorage.setItem("_account", account);
         console.log("ID: " + responsePayload.sub);
-        console.log('Full Name: ' + responsePayload.name);
-        console.log('Given Name: ' + responsePayload.given_name);
-        console.log('Family Name: ' + responsePayload.family_name);
+        console.log("Full Name: " + responsePayload.name);
+        console.log("Given Name: " + responsePayload.given_name);
+        console.log("Family Name: " + responsePayload.family_name);
         console.log("Image URL: " + responsePayload.picture);
         console.log("Email: " + responsePayload.email);
+        window.location.href = "frontpage.html";
       }
     </script>
   </body>
