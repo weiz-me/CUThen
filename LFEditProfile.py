@@ -8,7 +8,7 @@ import json
 
 REGION = 'us-east-1'
 HOST = 'search-cuthen-temp-5fyo5fvs7x7t2myle4ztwa7swa.us-east-1.es.amazonaws.com'
-INDEX = 'user_to_group'
+INDEX = 'max_id'
 
 def lambda_handler(event, context):
     # uni is the primary/paritition key
@@ -148,7 +148,7 @@ def put_item(features, db=None, table='6998Demo'):
     for feature_dict in features:
         feature_name, feature = list(feature_dict.items())[0]
         item[feature_name] = {
-            'S': feature
+            'S': str(feature)
         }
     item['user_id'] = {
         'N': str(max_id + 1)
