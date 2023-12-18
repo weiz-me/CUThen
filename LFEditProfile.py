@@ -8,7 +8,9 @@ import json
 
 REGION = 'us-east-1'
 HOST = 'search-cuthen-temp-5fyo5fvs7x7t2myle4ztwa7swa.us-east-1.es.amazonaws.com'
-INDEX = 'max_id'
+INDEX1 = 'max_id'
+INDEX2 = 'user_to_inv'
+INDEX3 = 'user_to_group'
 
 def lambda_handler(event, context):
     # uni is the primary/paritition key
@@ -38,7 +40,7 @@ def lambda_handler(event, context):
 
     orginal = lookup_data({'user_id': user_data["currentUser"]}, table="user_table")
     if orginal == None:
-        new_id = put_item(user_data["newFeatures"], table="user_table")
+        new_id = create_user(user_data["newFeatures"], table="user_table")
         print(f"new_id: {new_id}")
         updated_Data = lookup_data({'user_id': new_id}, table="user_table")
         response = {"message":"insert success","input": user_data , "updated_Data":updated_Data}
@@ -108,7 +110,7 @@ def get_awsauth(region, service):
                     service,
                     session_token=cred.token)
 
-def query(index, field, term):
+def query(client, index, field, term):
     q = {"query": {
             "bool": {
                 "must": {
@@ -120,7 +122,19 @@ def query(index, field, term):
         }
     }
 
-    client = OpenSearch(hosts=[{
+    res = client.search(index=index, body=q)
+    print(res)
+
+    hits = res['hits']['hits']
+    print(f"hits on max user id: {hits[0]['_source']}")
+    return hits[0]['_source']
+
+def create_user(features, db=None, table='6998Demo'):
+    if not db:
+        db = boto3.resource('dynamodb')
+    table = db.Table(table)
+
+    os_client = OpenSearch(hosts=[{
         'host': HOST,
         'port': 443
     }],
@@ -129,20 +143,8 @@ def query(index, field, term):
                         verify_certs=True,
                         connection_class=RequestsHttpConnection)
 
-    res = client.search(index=index, body=q)
-    print(res)
-
-    hits = res['hits']['hits']
-    print(f"hits on max user id: {hits[0]['_source']}")
-    return hits[0]['_source']
-
-def put_item(features, db=None, table='6998Demo'):
-    if not db:
-        db = boto3.resource('dynamodb')
-    table = db.Table(table)
-
     # get max user id
-    max_id = int(query(index=INDEX, field='type', term='user_id')['max'])
+    max_id = int(query(client=os_client, index=INDEX1, field='type', term='user_id')['max'])
     item = {}
 
     for feature_dict in features:
@@ -152,4 +154,16 @@ def put_item(features, db=None, table='6998Demo'):
     print(f"item to be inserted into dynamodb: {item}")
 
     response = table.put_item(Item = item)
+    print("user created and inserted into dynamodb")
+
+    # update max user id
+    max_id_document = {"max": max_id + 1, "type": "user_id"}
+    os_client.index(index=INDEX1, id = 2, body=max_id_document, refresh=True)
+
+    # create new user_to_inv and user_to_group entry
+    inv_document = {"user_id": max_id + 1, "pending_inv_ids": []}
+    os_client.index(index=INDEX2, id = max_id + 1, body=inv_document, refresh=True)
+
+    group_document = {"user_id": max_id + 1, "group_id": []}
+    os_client.index(index=INDEX3, id = max_id + 1, body=group_document, refresh=True)
     return max_id + 1
