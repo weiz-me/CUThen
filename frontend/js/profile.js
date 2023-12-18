@@ -16,28 +16,29 @@ function callProfilePostApi(user_id) {
       }
     }
     localStorage.setItem("_ledGroups", btoa(JSON.stringify(ledGroups)));
-    console.log(JSON.stringify(userInfo.data.userFeatures))
     localStorage.setItem("_userFeatures", btoa(JSON.stringify(userInfo.data.userFeatures)));
     localStorage.setItem("_userGroups", btoa(JSON.stringify(userInfo.data.groups)));
     localStorage.setItem("_userInvites", btoa(JSON.stringify(userInfo.data.pendingInvites)));
+    //console.log(JSON.stringify(userInfo.data.groups));
     console.log("Updated");
   });
 }
 
-async function callModifyProfilePostApi(user_id, user_vector) {
+function callModifyProfilePostApi(user_id, user_vector) {
   params = {};
   body = { currentUser: user_id, newFeatures: user_vector };
   additionalParams = {};
-  response = sdk.modifyProfilePost(params, body, additionalParams);
-  callProfilePostApi(user_id);
-  return response;
+  sdk.modifyProfilePost(params, body, additionalParams).then((response) => {
+    callProfilePostApi(user_id);
+    return response;
+  });
 }
 
 window.addEventListener("load", function () {
   const editButton = $("#editButton");
   const maxWidth = 50;
   const maxHeight = 50;
-  const unchangeableFeatures = ["user_id"]
+  const unchangeableFeatures = ["user_id"];
 
   var account = localStorage.getItem("_account");
   account = atob(account);
@@ -69,20 +70,20 @@ window.addEventListener("load", function () {
       editField.style.display = "block";
       profileDiv.appendChild(editField);
 
-    editField.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        featureDiv.innerHTML = featureName + ": " + editField.value;
-        for (let i = 0; i < features.length; i++) {
-          if (Object.keys(features[i])[0] == featureName[0]) {
-            // Need to index into featureName because it's an array with one element
-            features[i][featureName] = editField.value;
-            console.log("Feature Updated: " + featureName + ": " + features[i][featureName]);
+      editField.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          featureDiv.innerHTML = featureName + ": " + editField.value;
+          for (let i = 0; i < features.length; i++) {
+            if (Object.keys(features[i])[0] == featureName[0]) {
+              // Need to index into featureName because it's an array with one element
+              features[i][featureName] = editField.value;
+              console.log("Feature Updated: " + featureName + ": " + features[i][featureName]);
+            }
           }
+          editField.value = "";
         }
-        editField.value = "";
-      }
-    });
-  }
+      });
+    }
   });
   editButton.click(function () {
     console.log(callModifyProfilePostApi(user_id, features));

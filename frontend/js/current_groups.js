@@ -1,106 +1,9 @@
 var sdk = apigClientFactory.newClient({});
-
-const groups = [
-  {
-    //THIS IS USED FOR TESTING
-    groupId: 1,
-    groupLeader: {
-      userId: 1,
-      userName: "test1",
-      userFeatures: [
-        { featureName: "Feature 1", featureValue: "1Value 1" },
-        { featureName: "Feature 2", featureValue: "1Value 2" },
-      ],
-    },
-    groupMembers: [
-      {
-        userId: 1,
-        userName: "test1",
-        userFeatures: [
-          { featureName: "Feature 1", featureValue: "1Value 1" },
-          { featureName: "Feature 2", featureValue: "1Value 2" },
-        ],
-      },
-      {
-        userId: 2,
-        userName: "test2",
-        userFeatures: [
-          { featureName: "Feature 1", featureValue: "2Value 1" },
-          { featureName: "Feature 2", featureValue: "2Value 2" },
-        ],
-      },
-      {
-        userId: 3,
-        userName: "test3",
-        userFeatures: [
-          { featureName: "Feature 1", featureValue: "3Value 1" },
-          { featureName: "Feature 2", featureValue: "3Value 2" },
-        ],
-      },
-    ],
-  },
-  {
-    groupId: 2,
-    groupLeader: {
-      userId: 2,
-      userName: "test2",
-      userFeatures: [
-        { featureName: "Feature 1", featureValue: "2Value 1" },
-        { featureName: "Feature 2", featureValue: "2Value 2" },
-      ],
-    },
-    groupMembers: [
-      {
-        userId: 3,
-        userName: "test3",
-        userFeatures: [
-          { featureName: "Feature 1", featureValue: "3Value 1" },
-          { featureName: "Feature 2", featureValue: "3Value 2" },
-        ],
-      },
-      {
-        userId: 2,
-        userName: "test2",
-        userFeatures: [
-          { featureName: "Feature 1", featureValue: "2Value 1" },
-          { featureName: "Feature 2", featureValue: "2Value 2" },
-        ],
-      },
-    ],
-  },
-];
-
-const invites = [
-  {
-    invitingGroup: groups[0],
-    invitee: {
-      userId: 1,
-      userName: "test1",
-      userFeatures: [
-        { featureName: "Feature 1", featureValue: "1Value 1" },
-        { featureName: "Feature 2", featureValue: "1Value 2" },
-      ],
-    },
-  },
-  {
-    invitingGroup: groups[1],
-    invitee: {
-      userId: 1,
-      userName: "test1",
-      userFeatures: [
-        { featureName: "Feature 1", featureValue: "1Value 1" },
-        { featureName: "Feature 2", featureValue: "1Value 2" },
-      ],
-    },
-  },
-];
-
-async function callChatPostApi(send, group_id, user_id, message) {
+function callChatPostApi(send, group_id, user_id, message) {
   params = {};
   body = { send: send, group_id: group_id, user_id: user_id, message: message };
   additionalParams = {};
   chatLogs = sdk.chatPost(params, body, additionalParams);
-  console.log("CHAT LOGS: " + JSON.stringify(chatLogs));
   return chatLogs;
 }
 
@@ -121,6 +24,7 @@ function callProfilePostApi(user_id) {
     localStorage.setItem("_userFeatures", btoa(JSON.stringify(userInfo.data.userFeatures)));
     localStorage.setItem("_userGroups", btoa(JSON.stringify(userInfo.data.groups)));
     localStorage.setItem("_userInvites", btoa(JSON.stringify(userInfo.data.pendingInvites)));
+    //console.log(JSON.stringify(userInfo.data.groups));
     console.log("Updated");
   });
 }
@@ -131,9 +35,11 @@ function callGroupPutApi(user_id, group_leader_id, group_id) {
     body = { group_id: group_id };
     additionalParams = {};
     alert("Group deleted. Please wait a few moments to see this update here.");
-    return sdk.groupPut(params, body, additionalParams);
+    response = sdk.groupPut(params, body, additionalParams);
+    callProfilePostApi(user_id);
+    return response;
   }
-  console.log("You cannot delete this group because you are not the group leader");
+  alert("You cannot delete this group because you are not the group leader");
   return "You cannot delete this group because you are not the group leader";
 }
 
@@ -142,7 +48,10 @@ function callGroupPostApi(user_id, group_members) {
   body = { groupLeader: user_id, groupMembers: group_members };
   additionalParams = {};
   alert("Group created. You can now invite new members! Please wait a few moments to see this update here.");
-  return sdk.groupPost(params, body, additionalParams);
+
+  response = sdk.groupPost(params, body, additionalParams);
+  callProfilePostApi;
+  return response;
 }
 
 function callRespondToInvitationPostApi(invitationResponse) {
@@ -150,6 +59,15 @@ function callRespondToInvitationPostApi(invitationResponse) {
   params = {};
   body = invitationResponse;
   additionalParams = {};
+  var accept = invitationResponse.accept;
+  var user_id = invitationResponse.user_id;
+  console.log("USER ID: " + user_id);
+  if (accept == 1) {
+    alert("You have accepted the invitation. Please wait a few moments to see this update here.");
+  } else {
+    alert("You have rejected the invitation. Please wait a few moments to see this update here.");
+  }
+  callProfilePostApi(user_id);
   return sdk.respondToInvitationPost(params, body, additionalParams);
 }
 
@@ -200,6 +118,7 @@ async function openChatWindow(groupId, user_id, first_name) {
   });
   var title = document.getElementById("chatTitle");
   title.innerHTML = "Group " + groupId + " Chat";
+  callProfilePostApi(user_id);
 }
 
 function speak(name, side, text) {
@@ -235,7 +154,7 @@ window.addEventListener("load", function () {
   const user_id = account.userId;
   const first_name = account.firstName;
   console.log("FIRST NAME " + first_name);
-  // callProfilePostApi(user_id);
+  callProfilePostApi(user_id);
 
   var features = localStorage.getItem("_userFeatures");
   features = atob(features);
@@ -406,6 +325,23 @@ window.addEventListener("load", function () {
     speak("Me", "right", msgText);
     chatText.value = "";
   });
+  window.setInterval((event) => {
+    console.log("CLICK");
+    callChatPostApi(0, chatMain.getAttribute("data-groupId"), user_id, "").then((chatLogs) => {
+      while (chatLogs.data.length > chatMain.childElementCount) {
+        var chatLog = chatLogs.data[chatMain.childElementCount];
+        var message = chatLog[0];
+        var sender = chatLog[1];
+        var side = "left";
+        if (sender == first_name) {
+          side = "right";
+          sender = "Me";
+        }
+        console.log("SYNC ME UP");
+        speak(sender, side, message);
+      }
+    });
+  }, 1000);
 
   // Add make group functionality
   var makeGroupButton = document.getElementById("makeGroupButton");
