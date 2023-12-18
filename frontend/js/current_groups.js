@@ -95,14 +95,13 @@ const invites = [
   },
 ];
 
-function callChatPostApi(send, group_id, user_id, message) {
-    params = {};
-    body = { send: send, group_id: group_id, user_id: user_id, message: message };
-    additionalParams = {};
-    sdk.chatPost(params, body, additionalParams).then((chatLogs) => {
-        console.log("CHAT LOGS: " + JSON.stringify(chatLogs));
-        return chatLogs;
-        });
+async function callChatPostApi(send, group_id, user_id, message) {
+  params = {};
+  body = { send: send, group_id: group_id, user_id: user_id, message: message };
+  additionalParams = {};
+  chatLogs = sdk.chatPost(params, body, additionalParams);
+  console.log("CHAT LOGS: " + JSON.stringify(chatLogs));
+  return chatLogs;
 }
 
 function callProfilePostApi(user_id) {
@@ -131,7 +130,7 @@ function callGroupPutApi(user_id, group_leader_id, group_id) {
     params = {};
     body = { group_id: group_id };
     additionalParams = {};
-    alert("Group deleted. Please wait a few moments to see this update here.")
+    alert("Group deleted. Please wait a few moments to see this update here.");
     return sdk.groupPut(params, body, additionalParams);
   }
   console.log("You cannot delete this group because you are not the group leader");
@@ -147,11 +146,11 @@ function callGroupPostApi(user_id, group_members) {
 }
 
 function callRespondToInvitationPostApi(invitationResponse) {
-    console.log(invitationResponse);
-    params = {};
-    body = invitationResponse;
-    additionalParams = {};
-    return sdk.respondToInvitationPost(params, body, additionalParams);
+  console.log(invitationResponse);
+  params = {};
+  body = invitationResponse;
+  additionalParams = {};
+  return sdk.respondToInvitationPost(params, body, additionalParams);
 }
 
 function openGroupTab(tabName) {
@@ -172,7 +171,7 @@ function openInviteTab(tabName) {
   document.getElementById(tabName).style.display = "block";
 }
 
-function openChatWindow(groupId, user_id, first_name) {
+async function openChatWindow(groupId, user_id, first_name) {
   var chatWindow = document.getElementById("chatWindow");
   var chatMain = document.getElementById("chatMain");
   chatMain.setAttribute("data-groupId", groupId);
@@ -185,10 +184,11 @@ function openChatWindow(groupId, user_id, first_name) {
     chatWindow.style.display = "block";
   }
   callChatPostApi(0, chatMain.getAttribute("data-groupId"), user_id, "").then((chatLogs) => {
+    console.log("CHAT LOGS2: " + JSON.stringify(chatLogs));
     for (let i = 0; i < chatLogs.data.length; i++) {
       var chatLog = chatLogs.data[i];
-      var sender = chatLog.sender;
-      var message = chatLog.message;
+      var message = chatLog[0];
+      var sender = chatLog[1];
       var side = "left";
       if (sender == first_name) {
         side = "right";
@@ -294,7 +294,10 @@ window.addEventListener("load", function () {
     chatButton.style.fontSize = "15px";
     chatButton.style.color = colors[index % 2];
 
-    chatButton.setAttribute("onclick", "openChatWindow(parentElement.getAttribute('data-groupId'), '" + user_id + "', '" + first_name + "')");
+    chatButton.setAttribute(
+      "onclick",
+      "openChatWindow(parentElement.getAttribute('data-groupId'), '" + user_id + "', '" + first_name + "')"
+    );
 
     groupDetails.appendChild(chatButton);
 
