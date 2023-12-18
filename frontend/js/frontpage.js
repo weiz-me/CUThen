@@ -55,39 +55,36 @@ const matches = {
 var sdk = apigClientFactory.newClient({});
 
 function callProfilePostApi(user_id) {
-    //Should return an object containing user groups, name, features, and pending invites
-    var params = {};
-    var body = { userId: user_id };
-    var additionalParams = {};
-    sdk.profilePost(params, body, additionalParams).then((userInfo) => {
-      const userGroups = userInfo.data.groups;
-      var ledGroups = [];
-      for (let i = 0; i < userGroups.length; i++) {
-        if (userGroups[i].groupLeader.userId == user_id) {
-          ledGroups.push(userGroups[i].groupId);
-        }
+  //Should return an object containing user groups, name, features, and pending invites
+  var params = {};
+  var body = { userId: user_id };
+  var additionalParams = {};
+  sdk.profilePost(params, body, additionalParams).then((userInfo) => {
+    const userGroups = userInfo.data.groups;
+    var ledGroups = [];
+    for (let i = 0; i < userGroups.length; i++) {
+      if (userGroups[i].groupLeader.userId == user_id) {
+        ledGroups.push(userGroups[i].groupId);
       }
-      localStorage.setItem("_ledGroups", btoa(JSON.stringify(ledGroups)));
-      localStorage.setItem("_userFeatures", btoa(JSON.stringify(userInfo.data.userFeatures)));
-      localStorage.setItem("_userGroups", btoa(JSON.stringify(userInfo.data.groups)));
-      localStorage.setItem("_userInvites", btoa(JSON.stringify(userInfo.data.pendingInvites)));
-      console.log(JSON.stringify(userInfo.data.groups));
-      console.log("Updated");
-    });
-  }
-  
+    }
+    localStorage.setItem("_ledGroups", btoa(JSON.stringify(ledGroups)));
+    localStorage.setItem("_userFeatures", btoa(JSON.stringify(userInfo.data.userFeatures)));
+    localStorage.setItem("_userGroups", btoa(JSON.stringify(userInfo.data.groups)));
+    localStorage.setItem("_userInvites", btoa(JSON.stringify(userInfo.data.pendingInvites)));
+    //console.log(JSON.stringify(userInfo.data.groups));
+    console.log("Updated");
+  });
+}
 
 function callMatchesPostApi(user_id) {
   params = {};
   body = { userId: user_id };
   additionalParams = {};
-  sdk
-    .matchmakerPost(params, body, additionalParams)
-    .then((response) => {
-      localStorage.setItem("_matches", btoa(JSON.stringify(response)));
-      console.log(JSON.stringify(response));
-      return response;
-    })
+  sdk.matchmakerPost(params, body, additionalParams).then((response) => {
+    localStorage.setItem("_matches", btoa(JSON.stringify(response)));
+    //console.log(JSON.stringify(response));
+    return response;
+  });
 }
 
 function showPrompt(inviteeId, inviteeName, ledGroups) {
@@ -99,18 +96,16 @@ function showPrompt(inviteeId, inviteeName, ledGroups) {
     let invitingGroup = prompt(
       "Enter the group ID you want to invite " + inviteeName + " to. Here are your options: " + groupsString + "."
     );
-    console.log(JSON.stringify(ledGroups));
+    //console.log(JSON.stringify(ledGroups));
     if (ledGroups.includes(Number(invitingGroup))) {
       let message = "You have invited " + inviteeName + " to group " + invitingGroup;
       callExtendInvitationPostApi({ invitee: inviteeId, currentGroup: Number(invitingGroup) });
       alert(message);
-      console.log(message);
       return Number(invitingGroup);
     }
     if (invitingGroup == null) {
       let message = "You have cancelled the invitation.";
       alert(message);
-      console.log(message);
       return -1;
     }
     alert("Invalid group ID! Please try again.");
@@ -123,7 +118,7 @@ function callExtendInvitationPostApi(out_invitation) {
   body = { o_inv: out_invitation };
   additionalParams = {};
   var response = sdk.extendInvitationPost(params, body, additionalParams);
-  console.log("Response: " + response);
+  // console.log("Response: " + response);
   return response;
   // return "Invitation Extended to " + out_invitation.invitee + " for group " + out_invitation.currentGroup + ".";
 }
@@ -152,17 +147,22 @@ window.addEventListener("load", async function () {
   console.log("THIS IS THE USER ID: " + user_id);
   callProfilePostApi(user_id);
 
+  const first_name = "Chengyu";
+  const account = { userId: user_id, firstName: first_name };
+  localStorage.setItem("_account", btoa(JSON.stringify(account)));
+  console.log("LOCAL STORAGE: " + localStorage.getItem("_account"));
+
   // send the message to API
   callMatchesPostApi(user_id);
   var response = JSON.parse(atob(localStorage.getItem("_matches")));
   console.log("Response: " + JSON.stringify(response));
   var compats = JSON.parse(response.data.body);
-  console.log("Compats: " + JSON.stringify(compats)); 
+  console.log("Compats: " + JSON.stringify(compats));
   var ledGroups = JSON.parse(atob(localStorage.getItem("_ledGroups")));
   if (compats && compats.length > 1) {
     var displaySet = new Set();
     for (let i = 0; i < compats.length; i++) {
-      console.log("ID: " + compats[i].user_id)
+      console.log("ID: " + compats[i].user_id);
       if (displaySet.has(compats[i].user_id)) {
         continue;
       } else {
@@ -182,7 +182,9 @@ window.addEventListener("load", async function () {
             compats[i].user_id +
             "," +
             '"' +
-            compats[i].first_name + " " + compats[i].last_name +
+            compats[i].first_name +
+            " " +
+            compats[i].last_name +
             '"' +
             "," +
             JSON.stringify(ledGroups) +
@@ -192,15 +194,13 @@ window.addEventListener("load", async function () {
 
         // Display text in grid-item
         const hiddenFeatures = [];
-        console.log("HELLO: "+ Object.entries(compats[i]).length);
 
         for (let j = 0; j < Object.entries(compats[i]).length; j++) {
           key = Object.keys(compats[i])[j];
           value = Object.values(compats[i])[j];
           var feature = document.createElement("div");
-          console.log("Feature: " + key + ": " + value);
-          feature.innerHTML +=
-            key + ": " + value + "<br>";
+          //console.log("Feature: " + key + ": " + value);
+          feature.innerHTML += key + ": " + value + "<br>";
           feature.setAttribute("class", "feature");
           feature.setAttribute("id", compats[i].user_id + "feature" + j);
           // Hide features after the first two

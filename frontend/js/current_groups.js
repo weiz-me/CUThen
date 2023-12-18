@@ -1,5 +1,3 @@
-//UNCOMMENT RELEVANT LINES WHEN API IS READY
-
 var sdk = apigClientFactory.newClient({});
 
 const groups = [
@@ -97,6 +95,16 @@ const invites = [
   },
 ];
 
+function callChatPostApi(send, group_id, user_id, message) {
+    params = {};
+    body = { send: send, group_id: group_id, user_id: user_id, message: message };
+    additionalParams = {};
+    sdk.chatPost(params, body, additionalParams).then((chatLogs) => {
+        console.log("CHAT LOGS: " + JSON.stringify(chatLogs));
+        return chatLogs;
+        });
+}
+
 function callProfilePostApi(user_id) {
   //Should return an object containing user groups, name, features, and pending invites
   var params = {};
@@ -164,9 +172,10 @@ function openInviteTab(tabName) {
   document.getElementById(tabName).style.display = "block";
 }
 
-function openChatWindow(groupId) {
+function openChatWindow(groupId, user_id, first_name) {
   var chatWindow = document.getElementById("chatWindow");
   var chatMain = document.getElementById("chatMain");
+  chatMain.setAttribute("data-groupId", groupId);
   // delete all children of chatMain
   while (chatMain.firstChild) {
     chatMain.removeChild(chatMain.firstChild);
@@ -175,6 +184,19 @@ function openChatWindow(groupId) {
   if (chatWindow.style.display === "none") {
     chatWindow.style.display = "block";
   }
+  callChatPostApi(0, chatMain.getAttribute("data-groupId"), user_id, "").then((chatLogs) => {
+    for (let i = 0; i < chatLogs.data.length; i++) {
+      var chatLog = chatLogs.data[i];
+      var sender = chatLog.sender;
+      var message = chatLog.message;
+      var side = "left";
+      if (sender == first_name) {
+        side = "right";
+        sender = "Me";
+      }
+      speak(sender, "left", message);
+    }
+  });
   var title = document.getElementById("chatTitle");
   title.innerHTML = "Group " + groupId + " Chat";
 }
@@ -210,7 +232,8 @@ window.addEventListener("load", function () {
   account = JSON.parse(account);
 
   const user_id = account.userId;
-  callProfilePostApi(user_id);
+  const first_name = account.first_name;
+  // callProfilePostApi(user_id);
 
   var features = localStorage.getItem("_userFeatures");
   features = atob(features);
@@ -271,7 +294,7 @@ window.addEventListener("load", function () {
     chatButton.style.fontSize = "15px";
     chatButton.style.color = colors[index % 2];
 
-    chatButton.setAttribute("onclick", "openChatWindow(parentElement.getAttribute('data-groupId'))");
+    chatButton.setAttribute("onclick", "openChatWindow(parentElement.getAttribute('data-groupId'), '" + user_id + "', '" + first_name + "')");
 
     groupDetails.appendChild(chatButton);
 
@@ -365,6 +388,7 @@ window.addEventListener("load", function () {
   });
 
   // Add chat functionality
+  var chatMain = document.getElementById("chatMain");
   var chatInput = document.getElementById("chatInput");
   var chatText = document.getElementById("chatText");
   chatInput.addEventListener("submit", (event) => {
@@ -372,6 +396,8 @@ window.addEventListener("load", function () {
     const msgText = chatText.value;
     console.log("msgText: " + msgText);
     if (!msgText) return;
+    var chatLogs = callChatPostApi(1, chatMain.getAttribute("data-groupId"), user_id, msgText);
+    console.log("LOGS: " + JSON.stringify(chatLogs));
     speak("Me", "right", msgText);
     chatText.value = "";
   });
